@@ -261,6 +261,25 @@ Blockly.Blocks['extension_microbit_display'] = {
   }
 };
 
+Blockly.Blocks['extension_chance_slider'] = {
+  /**
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": "Dice with properties %1",
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "SLIDER"
+        }
+      ],
+      "category": Blockly.Categories.pen,
+      "extensions": ["colours_pen", "shape_statement", "scratch_extension"]
+    });
+  }
+};
+
 Blockly.Blocks['extension_music_play_note'] = {
   /**
    * @this Blockly.Block
