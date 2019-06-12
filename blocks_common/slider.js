@@ -19,7 +19,7 @@
  */
 
 /**
- * @fileoverview Matrix blocks for Blockly.
+ * @fileoverview Slider blocks for Blockly.
  * @author khanning@gmail.com (Kreg Hanning)
  */
 'use strict';
@@ -31,10 +31,9 @@ goog.require('Blockly.Blocks');
 goog.require('Blockly.Colours');
 
 goog.require('Blockly.constants');
-
 Blockly.Blocks['slider'] = {
   /**
-   * Block for matrix value.
+   * Block for slider value.
    * @this Blockly.Block
    */
   init: function() {
