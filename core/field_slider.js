@@ -1,8 +1,8 @@
 /**
  * @license
- * Visual Blocks Editor
+ * Dice Block Sliders
  *
- * Copyright 2016 Massachusetts Institute of Technology
+ * Copyright 2019 Massachusetts Institute of Technology
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,11 +19,11 @@
  */
 
 /**
- * @fileoverview 5x5 slider input field.
- * Displays an editable 5x5 slider for controlling LED arrays.
- * @author khanning@gmail.com (Kreg Hanning)
+ * @fileoverview n-slider input field
+ * Displays n sliders with fixed total height.
+ * @author Ersin Arioglu (ersin@mit.edu) and Shannon Peng (pengs@mit.edu)
  */
-//'use strict';
+'use strict';
 
 goog.provide('Blockly.FieldSlider');
 
@@ -31,7 +31,7 @@ goog.require('Blockly.DropDownDiv');
 
 /**
  * Class for a slider field.
- * @param {number} slider The default slider value represented by a 25-bit integer.
+ * @param {Array<number>} slider The default slider values represented by an array of numbers.
  * @extends {Blockly.Field}
  * @constructor
  */
@@ -49,15 +49,13 @@ Blockly.FieldSlider = function(slider) {
    * @type {!Array<SVGElement>}
    * @private
    */
-  this.sliderButtons_ = [];
+  this.sliderRects_ = [];
   /**
-   * List for storing current slider value.
+   * Array of numbers for current slider values.
    * @type {Array}
-   * 
-   * 
    * @private
    */
-  this.slider_ = new Array(20,20,20,20,20);
+  this.slider_ = [20, 20, 20, 20, 20];
 
   /**
    * SVGElement for LED slider in editor.
@@ -321,7 +319,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'width': sliderSize + 'px'
   }, div);
   // Create the slider
-  this.sliderButtons_ = [];
+  this.sliderRects_ = [];
   for (var i = 0; i < 5; i++) {
     
     var x = (Blockly.FieldSlider.MATRIX_NODE_SIZE * i) +
@@ -338,7 +336,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     var led = Blockly.utils.createSvgElement('rect', attr, this.sliderStage_);
    
     this.sliderStage_.appendChild(led);
-    this.sliderButtons_.push(led);
+    this.sliderRects_.push(led);
     
   }
   // Div for lower button menu
@@ -418,11 +416,16 @@ Blockly.FieldSlider.prototype.createButton_ = function(fill) {
 Blockly.FieldSlider.prototype.updateSlider_ = function() {
   for (var i = 0; i < this.slider_.length; i++) {
     // if (this.slider_[i] === '0') {
-    //this.fillSliderNode_(this.sliderButtons_, i, this.sourceBlock_.colourSecondary_);
+    //this.fillSliderNode_(this.sliderRects_, i, this.sourceBlock_.colourSecondary_);
     //this.fillSliderNode_(this.sliderThumbNodes_, i, this.sourceBlock_.colour_);
     // } else {
+<<<<<<< Updated upstream
     this.fillSliderNode_(this.sliderButtons_, i, '#FFFFFF');
     this.fillSliderNode_(this.ledThumbNodes_, i, '#FFFFFF');
+=======
+    this.fillSliderNode_(this.sliderRects_, i, this.slider_[i], '#FFFFFF');
+    this.fillSliderNode_(this.ledThumbNodes_, i, this.slider_[i], '#FFFFFF');
+>>>>>>> Stashed changes
   //  }
   }
 };
