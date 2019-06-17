@@ -118,6 +118,14 @@ Blockly.FieldSlider = function(slider) {
    * @private
    */
   this.sliderReleaseWrapper_ = null;
+  /**
+   * Current slider that is selected.
+   * Must be integer from 0 to 4.
+   * @type {Number}
+   * @private
+   */
+  this.currentSlider_ = null;
+
 };
 goog.inherits(Blockly.FieldSlider, Blockly.Field);
 
@@ -515,6 +523,7 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
     Blockly.bindEvent_(document.body, 'mouseup', this, this.onMouseUp);
   var sliderHit = parseInt(this.checkForLED_(e));
   var newHeight = 100 * (Blockly.FieldSlider.SLIDER_HEIGHT - dy) / Blockly.FieldSlider.SLIDER_HEIGHT;
+  this.currentSlider_ = sliderHit;
   if (sliderHit > -1 && sliderHit < 5) {
     this.toggleSliderNode_(sliderHit, newHeight);
     this.updateSlider_();
@@ -544,7 +553,7 @@ Blockly.FieldSlider.prototype.onMouseMove = function(e) {
   var nodeSize = Blockly.FieldSlider.MATRIX_NODE_SIZE;
   var nodePad = Blockly.FieldSlider.MATRIX_NODE_PAD;
   var dy = e.clientY - bBox.top;
-  var sliderHit = parseInt(this.checkForLED_(e));
+  var sliderHit = this.currentSlider_;
   var newHeight = 100 * (Blockly.FieldSlider.SLIDER_HEIGHT - dy) / Blockly.FieldSlider.SLIDER_HEIGHT;
   this.toggleSliderNode_(sliderHit, newHeight);
   this.updateSlider_();
