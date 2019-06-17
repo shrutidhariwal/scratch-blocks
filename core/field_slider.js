@@ -23,7 +23,7 @@
  * Displays an editable 5x5 slider for controlling LED arrays.
  * @author khanning@gmail.com (Kreg Hanning)
  */
-'use strict';
+//'use strict';
 
 goog.provide('Blockly.FieldSlider');
 
@@ -43,19 +43,22 @@ Blockly.FieldSlider = function(slider) {
    * @type {!Array<SVGElement>}
    * @private
    */
-  this.ledThumbNodes_ = [];
+  this.sliderThumbNodes_ = [];
   /**
    * Array of SVGElement<rect> for slider editor in dropdown menu.
    * @type {!Array<SVGElement>}
    * @private
    */
-  this.ledButtons_ = [];
+  this.sliderButtons_ = [];
   /**
-   * String for storing current slider value.
-   * @type {!String]
+   * List for storing current slider value.
+   * @type {Array}
+   * 
+   * 
    * @private
    */
-  this.slider_ = '';
+  this.slider_ = new Array(20,20,20,20,20);
+
   /**
    * SVGElement for LED slider in editor.
    * @type {?SVGElement}
@@ -196,6 +199,16 @@ Blockly.FieldSlider.ZEROS = '0000000000000000000000000';
  */
 Blockly.FieldSlider.ONES = '1111111111111111111111111';
 
+
+
+/**
+ * Fixed Height of each Slider.
+ * @type {number}
+ * @const
+ */
+
+Blockly.FieldSlider.SLIDER_HEIGHT = 100;
+
 /**
  * Called when the field is placed on a block.
  * @param {Block} block The owning block.
@@ -210,7 +223,7 @@ Blockly.FieldSlider.prototype.init = function() {
   this.fieldGroup_ = Blockly.utils.createSvgElement('g', {}, null);
   this.size_.width = Blockly.FieldSlider.THUMBNAIL_SIZE +
     Blockly.FieldSlider.ARROW_SIZE + (Blockly.BlockSvg.DROPDOWN_ARROW_PADDING * 1.5);
-
+  
   this.sourceBlock_.getSvgRoot().appendChild(this.fieldGroup_);
 
   var thumbX = Blockly.BlockSvg.DROPDOWN_ARROW_PADDING / 2;
@@ -223,17 +236,17 @@ Blockly.FieldSlider.prototype.init = function() {
   var nodeSize = Blockly.FieldSlider.THUMBNAIL_NODE_SIZE;
   var nodePad = Blockly.FieldSlider.THUMBNAIL_NODE_PAD;
   for (var i = 0; i < 5; i++) {
-    for (var n = 0; n < 5; n++) {
-      var attr = {
-        'x': ((nodeSize + nodePad) * n) + nodePad,
-        'y': ((nodeSize + nodePad) * i) + nodePad,
-        'width': nodeSize, 'height': nodeSize,
-        'rx': nodePad, 'ry': nodePad
-      };
-      this.ledThumbNodes_.push(
-          Blockly.utils.createSvgElement('rect', attr, thumbnail)
-      );
-    }
+    
+    var attr = {
+      'x': ((nodeSize + nodePad) * i) + nodePad,
+      'y': ((nodeSize + nodePad)) + nodePad,
+      'width': nodeSize, 'height': nodeSize,
+      'rx': nodePad, 'ry': nodePad
+    };
+    this.ledThumbNodes_.push(
+        Blockly.utils.createSvgElement('rect', attr, thumbnail)
+    );
+    
     thumbnail.style.cursor = 'default';
     this.updateSlider_();
   }
@@ -259,10 +272,11 @@ Blockly.FieldSlider.prototype.init = function() {
 
 /**
  * Set the value for this slider menu.
- * @param {string} slider The new slider value represented by a 25-bit integer.
+ * @param {Array} slider The new slider value represented by a 25-bit integer.
  * @override
  */
 Blockly.FieldSlider.prototype.setValue = function(slider) {
+  
   if (!slider || slider === this.slider_) {
     return;  // No change
   }
@@ -270,17 +284,19 @@ Blockly.FieldSlider.prototype.setValue = function(slider) {
     Blockly.Events.fire(new Blockly.Events.Change(
         this.sourceBlock_, 'field', this.name, this.slider_, slider));
   }
-  slider = slider + Blockly.FieldSlider.ZEROS.substr(0, 25 - slider.length);
-  this.slider_ = slider;
+  
+  this.slider_ = new Array(20,20,20,20,20);
+ 
   this.updateSlider_();
+  
 };
 
 /**
  * Get the value from this slider menu.
- * @return {string} Current slider value.
+ * @return {Array} Current slider value.
  */
 Blockly.FieldSlider.prototype.getValue = function() {
-  return String(this.slider_);
+  return this.slider_.slice(0);
 };
 
 /**
@@ -303,25 +319,25 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'height': sliderSize + 'px',
     'width': sliderSize + 'px'
   }, div);
-  // Create the 5x5 slider
-  this.ledButtons_ = [];
+  // Create the slider
+  this.sliderButtons_ = [];
   for (var i = 0; i < 5; i++) {
-    for (var n = 0; n < 5; n++) {
-      var x = (Blockly.FieldSlider.MATRIX_NODE_SIZE * n) +
-        (Blockly.FieldSlider.MATRIX_NODE_PAD * (n + 1));
-      var y = (Blockly.FieldSlider.MATRIX_NODE_SIZE * i) +
-        (Blockly.FieldSlider.MATRIX_NODE_PAD * (i + 1));
-      var attr = {
-        'x': x + 'px', 'y': y + 'px',
-        'width': Blockly.FieldSlider.MATRIX_NODE_SIZE,
-        'height': Blockly.FieldSlider.MATRIX_NODE_SIZE,
-        'rx': Blockly.FieldSlider.MATRIX_NODE_RADIUS,
-        'ry': Blockly.FieldSlider.MATRIX_NODE_RADIUS
-      };
-      var led = Blockly.utils.createSvgElement('rect', attr, this.sliderStage_);
-      this.sliderStage_.appendChild(led);
-      this.ledButtons_.push(led);
-    }
+    
+    var x = (Blockly.FieldSlider.MATRIX_NODE_SIZE * i) +
+      (Blockly.FieldSlider.MATRIX_NODE_PAD * (i + 1));
+    var y = sliderSize - Blockly.FieldSlider.MATRIX_NODE_SIZE;
+    var attr = {
+      'x': x + 'px', 'y': y + 'px',
+      'width': Blockly.FieldSlider.MATRIX_NODE_SIZE,
+      'height': Blockly.FieldSlider.SLIDER_HEIGHT,
+      'rx': Blockly.FieldSlider.MATRIX_NODE_RADIUS,
+      'ry': Blockly.FieldSlider.MATRIX_NODE_RADIUS
+    };
+    var led = Blockly.utils.createSvgElement('rect', attr, this.sliderStage_);
+   
+    this.sliderStage_.appendChild(led);
+    this.sliderButtons_.push(led);
+    
   }
   // Div for lower button menu
   var buttonDiv = document.createElement('div');
@@ -397,15 +413,16 @@ Blockly.FieldSlider.prototype.createButton_ = function(fill) {
  */
 Blockly.FieldSlider.prototype.updateSlider_ = function() {
   for (var i = 0; i < this.slider_.length; i++) {
-    if (this.slider_[i] === '0') {
-      this.fillSliderNode_(this.ledButtons_, i, this.sourceBlock_.colourSecondary_);
-      this.fillSliderNode_(this.ledThumbNodes_, i, this.sourceBlock_.colour_);
-    } else {
-      this.fillSliderNode_(this.ledButtons_, i, '#FFFFFF');
-      this.fillSliderNode_(this.ledThumbNodes_, i, '#FFFFFF');
-    }
+    // if (this.slider_[i] === '0') {
+    //this.fillSliderNode_(this.sliderButtons_, i, this.sourceBlock_.colourSecondary_);
+    //this.fillSliderNode_(this.sliderThumbNodes_, i, this.sourceBlock_.colour_);
+    // } else {
+    this.fillSliderNode_(this.sliderButtons_, i, this.slider_[i], '#FFFFFF');
+    this.fillSliderNode_(this.ledThumbNodes_, i, this.slider_[i], '#FFFFFF');
+  //  }
   }
 };
+
 
 /**
  * Clear the slider.
@@ -428,61 +445,69 @@ Blockly.FieldSlider.prototype.fillSlider_ = function(e) {
 /**
  * Fill slider node with specified colour.
  * @param {!Array<SVGElement>} node The array of slider nodes.
- * @param {!number} index The index of the slider node.
+ * @param {!number} index The sindex of the slider node.
  * @param {!string} fill The fill colour in '#rrggbb' format.
  */
-Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, index, fill) {
+Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, index, new_height, fill) {
   if (!node || !node[index] || !fill) return;
-  node[index].setAttribute('fill', fill);
+  
+  var newHeight = new_height / 100 * Blockly.FieldSlider.SLIDER_HEIGHT;
+  var currentY = node[index].getAttribute('y');
+  var currentHeight = node[index].getAttribute('height');
+  currentY = currentY.slice(0, currentY.length - 2);
+  currentY = parseInt(currentY); 
+  node[index].setAttribute('height', newHeight);
+  node[index].setAttribute('y', (currentY  + (newHeight - currentHeight)) + 'px');
 };
 
 Blockly.FieldSlider.prototype.setLEDNode_ = function(led, state) {
-  if (led < 0 || led > 24) return;
-  var slider = this.slider_.substr(0, led) + state + this.slider_.substr(led + 1);
-  this.setValue(slider);
+  if (led < 0 || led > 5) return;
+  this.slider_[parseInt(led)] = state;
+  
 };
 
 Blockly.FieldSlider.prototype.fillLEDNode_ = function(led) {
-  if (led < 0 || led > 24) return;
-  this.setLEDNode_(led, '1');
+  if (led < 0 || led > 5) return;
+  this.setLEDNode_(led, 1);
 };
 
 Blockly.FieldSlider.prototype.clearLEDNode_ = function(led) {
-  if (led < 0 || led > 24) return;
-  this.setLEDNode_(led, '0');
+  if (led < 0 || led > 5) return;
+  this.setLEDNode_(led, 0);
 };
 
-Blockly.FieldSlider.prototype.toggleLEDNode_ = function(led) {
-  if (led < 0 || led > 24) return;
-  if (this.slider_.charAt(led) === '0') {
-    this.setLEDNode_(led, '1');
-  } else {
-    this.setLEDNode_(led, '0');
-  }
+Blockly.FieldSlider.prototype.toggleSliderNode_ = function(led, newHeight) {
+  if (led < 0 || led > 5) return;
+  
+  
+  this.setLEDNode_(parseInt(led), newHeight);
+  
 };
 
 /**
- * Toggle slider nodes on and off.
+ * Takes in a mouse event and gives the new height to toggleSliderNode as a number between 0 and 100.
  * @param {!Event} e Mouse event.
  */
 Blockly.FieldSlider.prototype.onMouseDown = function(e) {
+  var bBox = this.sliderStage_.getBoundingClientRect();
+  var nodeSize = Blockly.FieldSlider.MATRIX_NODE_SIZE;
+  var nodePad = Blockly.FieldSlider.MATRIX_NODE_PAD;
+  var dy = e.clientY - bBox.top;
   this.sliderMoveWrapper_ =
     Blockly.bindEvent_(document.body, 'mousemove', this, this.onMouseMove);
   this.sliderReleaseWrapper_ =
     Blockly.bindEvent_(document.body, 'mouseup', this, this.onMouseUp);
-  var ledHit = this.checkForLED_(e);
-  if (ledHit > -1) {
-    if (this.slider_.charAt(ledHit) === '0') {
-      this.paintStyle_ = 'fill';
-    } else {
-      this.paintStyle_ = 'clear';
-    }
-    this.toggleLEDNode_(ledHit);
+  var sliderHit = parseInt(this.checkForLED_(e));
+  var newHeight = 100 * (Blockly.FieldSlider.SLIDER_HEIGHT - dy) / Blockly.FieldSlider.SLIDER_HEIGHT;
+  console.log(newHeight);
+  if (sliderHit > -1 && sliderHit < 5) {
+    this.toggleSliderNode_(sliderHit, newHeight);
     this.updateSlider_();
   } else {
     this.paintStyle_ = null;
   }
 };
+
 
 /**
  * Unbind mouse move event and clear the paint style.
@@ -500,15 +525,14 @@ Blockly.FieldSlider.prototype.onMouseUp = function() {
  */
 Blockly.FieldSlider.prototype.onMouseMove = function(e) {
   e.preventDefault();
-  if (this.paintStyle_) {
-    var led = this.checkForLED_(e);
-    if (led < 0) return;
-    if (this.paintStyle_ === 'clear') {
-      this.clearLEDNode_(led);
-    } else if (this.paintStyle_ === 'fill') {
-      this.fillLEDNode_(led);
-    }
-  }
+  var bBox = this.sliderStage_.getBoundingClientRect();
+  var nodeSize = Blockly.FieldSlider.MATRIX_NODE_SIZE;
+  var nodePad = Blockly.FieldSlider.MATRIX_NODE_PAD;
+  var dy = e.clientY - bBox.top;
+  var sliderHit = parseInt(this.checkForLED_(e));
+  var newHeight = dy - (nodeSize + nodePad + nodePad);
+  this.toggleSliderNode_(sliderHit, newHeight);
+  this.updateSlider_();
 };
 
 /**
@@ -528,8 +552,8 @@ Blockly.FieldSlider.prototype.checkForLED_ = function(e) {
     return -1;
   }
   var xDiv = Math.trunc((dx - nodePad / 2) / (nodeSize + nodePad));
-  var yDiv = Math.trunc((dy - nodePad / 2) / (nodeSize + nodePad));
-  return xDiv + (yDiv * nodePad);
+  
+  return xDiv;
 };
 
 /**
