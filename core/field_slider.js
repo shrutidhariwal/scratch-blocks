@@ -241,7 +241,8 @@ Blockly.FieldSlider.prototype.init = function() {
       'x': ((nodeSize + nodePad) * i) + nodePad,
       'y': ((nodeSize + nodePad)) + nodePad,
       'width': nodeSize, 'height': nodeSize,
-      'rx': nodePad, 'ry': nodePad
+      'rx': nodePad, 'ry': nodePad,
+      'fill': '#FFFFFF'
     };
     this.ledThumbNodes_.push(
         Blockly.utils.createSvgElement('rect', attr, thumbnail)
@@ -331,7 +332,8 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
       'width': Blockly.FieldSlider.MATRIX_NODE_SIZE,
       'height': Blockly.FieldSlider.SLIDER_HEIGHT,
       'rx': Blockly.FieldSlider.MATRIX_NODE_RADIUS,
-      'ry': Blockly.FieldSlider.MATRIX_NODE_RADIUS
+      'ry': Blockly.FieldSlider.MATRIX_NODE_RADIUS,
+      'fill': '#FFFFFF'
     };
     var led = Blockly.utils.createSvgElement('rect', attr, this.sliderStage_);
    
@@ -340,6 +342,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     
   }
   // Div for lower button menu
+  
   var buttonDiv = document.createElement('div');
   // Button to clear slider
   var clearButtonDiv = document.createElement('div');
@@ -352,9 +355,10 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   var fillButton = this.createButton_('#FFFFFF');
   fillButtonDiv.appendChild(fillButton);
 
-  buttonDiv.appendChild(clearButtonDiv);
-  buttonDiv.appendChild(fillButtonDiv);
+  //buttonDiv.appendChild(clearButtonDiv);
+  //buttonDiv.appendChild(fillButtonDiv);
   div.appendChild(buttonDiv);
+  
 
   Blockly.DropDownDiv.setColour(this.sourceBlock_.getColour(),
       this.sourceBlock_.getColourTertiary());
@@ -450,19 +454,22 @@ Blockly.FieldSlider.prototype.fillSlider_ = function(e) {
  */
 Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, index, new_height, fill) {
   if (!node || !node[index] || !fill) return;
-  
   var newHeight = new_height / 100 * Blockly.FieldSlider.SLIDER_HEIGHT;
-  var currentY = node[index].getAttribute('y');
-  var currentHeight = node[index].getAttribute('height');
-  currentY = currentY.slice(0, currentY.length - 2);
-  currentY = parseInt(currentY); 
+  
   node[index].setAttribute('height', newHeight);
-  node[index].setAttribute('y', (currentY  + (newHeight - currentHeight)) + 'px');
+  
+  node[index].setAttribute('y', ((Blockly.FieldSlider.SLIDER_HEIGHT - newHeight)) + 'px');
 };
 
 Blockly.FieldSlider.prototype.setLEDNode_ = function(led, state) {
   if (led < 0 || led > 5) return;
+  if (state < 0) {
+    state = 0;
+  } else if (state > 100) {
+    state = 100;
+  }
   this.slider_[parseInt(led)] = state;
+  
   
 };
 
@@ -499,7 +506,6 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
     Blockly.bindEvent_(document.body, 'mouseup', this, this.onMouseUp);
   var sliderHit = parseInt(this.checkForLED_(e));
   var newHeight = 100 * (Blockly.FieldSlider.SLIDER_HEIGHT - dy) / Blockly.FieldSlider.SLIDER_HEIGHT;
-  console.log(newHeight);
   if (sliderHit > -1 && sliderHit < 5) {
     this.toggleSliderNode_(sliderHit, newHeight);
     this.updateSlider_();
@@ -530,7 +536,7 @@ Blockly.FieldSlider.prototype.onMouseMove = function(e) {
   var nodePad = Blockly.FieldSlider.MATRIX_NODE_PAD;
   var dy = e.clientY - bBox.top;
   var sliderHit = parseInt(this.checkForLED_(e));
-  var newHeight = dy - (nodeSize + nodePad + nodePad);
+  var newHeight = 100 * (Blockly.FieldSlider.SLIDER_HEIGHT - dy) / Blockly.FieldSlider.SLIDER_HEIGHT;
   this.toggleSliderNode_(sliderHit, newHeight);
   this.updateSlider_();
 };
