@@ -419,13 +419,9 @@ Blockly.FieldSlider.prototype.updateSlider_ = function() {
     //this.fillSliderNode_(this.sliderRects_, i, this.sourceBlock_.colourSecondary_);
     //this.fillSliderNode_(this.sliderThumbNodes_, i, this.sourceBlock_.colour_);
     // } else {
-<<<<<<< Updated upstream
-    this.fillSliderNode_(this.sliderButtons_, i, '#FFFFFF');
-    this.fillSliderNode_(this.ledThumbNodes_, i, '#FFFFFF');
-=======
     this.fillSliderNode_(this.sliderRects_, i, this.slider_[i], '#FFFFFF');
     this.fillSliderNode_(this.ledThumbNodes_, i, this.slider_[i], '#FFFFFF');
->>>>>>> Stashed changes
+
   //  }
   }
 };
