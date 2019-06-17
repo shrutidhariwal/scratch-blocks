@@ -421,8 +421,8 @@ Blockly.FieldSlider.prototype.updateSlider_ = function() {
     //this.fillSliderNode_(this.sliderButtons_, i, this.sourceBlock_.colourSecondary_);
     //this.fillSliderNode_(this.sliderThumbNodes_, i, this.sourceBlock_.colour_);
     // } else {
-    this.fillSliderNode_(this.sliderButtons_, i, this.slider_[i], '#FFFFFF');
-    this.fillSliderNode_(this.ledThumbNodes_, i, this.slider_[i], '#FFFFFF');
+    this.fillSliderNode_(this.sliderButtons_, i, '#FFFFFF');
+    this.fillSliderNode_(this.ledThumbNodes_, i, '#FFFFFF');
   //  }
   }
 };
@@ -452,25 +452,35 @@ Blockly.FieldSlider.prototype.fillSlider_ = function(e) {
  * @param {!number} index The sindex of the slider node.
  * @param {!string} fill The fill colour in '#rrggbb' format.
  */
-Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, index, new_height, fill) {
+Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, index, fill) {
   if (!node || !node[index] || !fill) return;
-  var newHeight = new_height / 100 * Blockly.FieldSlider.SLIDER_HEIGHT;
+  var newHeight = this.slider_[index] / 100 * Blockly.FieldSlider.SLIDER_HEIGHT;
   
   node[index].setAttribute('height', newHeight);
   
   node[index].setAttribute('y', ((Blockly.FieldSlider.SLIDER_HEIGHT - newHeight)) + 'px');
 };
 
-Blockly.FieldSlider.prototype.setLEDNode_ = function(led, state) {
+Blockly.FieldSlider.prototype.setLEDNode_ = function(led, newHeight) {
   if (led < 0 || led > 5) return;
-  if (state < 0) {
-    state = 0;
-  } else if (state > 100) {
-    state = 100;
+  if (newHeight < 0) {
+    newHeight = 0;
+  } else if (newHeight > 100) {
+    newHeight = 100;
   }
-  this.slider_[parseInt(led)] = state;
-  
-  
+  let heightDiff = this.slider_[led] - newHeight;
+  let sumOfRest = 0;
+  for (var i = 0; i < 5; i++){
+    if (i != led) {
+      sumOfRest += this.slider_[i];    
+    }
+  }
+  for (var i = 0; i < 5; i++){
+    if (i != led) {
+      this.slider_[i] = this.slider_[i]  + (heightDiff * this.slider_[i] / sumOfRest);
+    }
+  }
+  this.slider_[led] = newHeight;
 };
 
 Blockly.FieldSlider.prototype.fillLEDNode_ = function(led) {
