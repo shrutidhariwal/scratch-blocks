@@ -334,9 +334,11 @@ this.nodeCallback_ = function(e, num) {
  * @private
  */
 Blockly.FieldSlider.prototype.updateSlider_ = function() {
+  let thumbNodeSize = Blockly.FieldSlider.THUMBNAIL_NODE_SIZE;
+  let thumbNodePad = Blockly.FieldSlider.THUMBNAIL_NODE_PAD;
   for (var i = 0; i < this.sliders_.length; i++) {
-    this.fillSliderNode_(this.sliderRects_, i, this.sliders_[i], '#FFFFFF');
-    this.fillSliderNode_(this.sliderThumbNodes_, i, this.sliders_[i], '#FFFFFF');
+    this.fillSliderNode_(this.sliderRects_, i, '#FFFFFF', Blockly.FieldSlider.MAX_SLIDER_HEIGHT);
+    this.fillSliderNode_(this.sliderThumbNodes_, i, '#FFFFFF', (thumbNodeSize + thumbNodePad) * 5);
   }
 };
 
@@ -346,13 +348,13 @@ Blockly.FieldSlider.prototype.updateSlider_ = function() {
  * @param {!number} index The sindex of the slider node.
  * @param {!string} fill The fill colour in '#rrggbb' format.
  */
-Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, index, fill) {
+Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, index, fill, maxHeight) {
   if (!node || !node[index] || !fill) return;
-  var newHeight = this.sliders_[index] / 100 * Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
-  
+  var newHeight = this.sliders_[index] / 100 * maxHeight;
+  console.log(maxHeight);
   node[index].setAttribute('height', newHeight);
   
-  node[index].setAttribute('y', ((Blockly.FieldSlider.MAX_SLIDER_HEIGHT - newHeight)) + 'px');
+  node[index].setAttribute('y', ((maxHeight - newHeight)) + 'px');
 };
 
 Blockly.FieldSlider.prototype.setSliderNode_ = function(sliderIndex, newHeight) {
