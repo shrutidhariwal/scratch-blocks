@@ -52,4 +52,4 @@ Blockly.Blocks['slider'] = {
   }
 };
 
-Blockly.Field.register('field_slider', Blockly.FieldSlider);
+//Blockly.Field.register('field_slider', Blockly.FieldSlider);

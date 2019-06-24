@@ -462,7 +462,7 @@ Blockly.FieldNote.prototype.showEditor_ = function() {
         'fill-opacity': Blockly.FieldNote.SHADOW_OPACITY
       }, svg);
 
-  // Octave buttons
+  // Octave  s
   this.octaveDownButton = this.addOctaveButton_(0, true, svg);
   this.octaveUpButton = this.addOctaveButton_(
       (this.fieldEditorWidth_ + Blockly.FieldNote.INSET * 2) -

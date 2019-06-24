@@ -210,7 +210,7 @@ Blockly.FieldMatrix.prototype.init = function() {
   this.fieldGroup_ = Blockly.utils.createSvgElement('g', {}, null);
   this.size_.width = Blockly.FieldMatrix.THUMBNAIL_SIZE +
     Blockly.FieldMatrix.ARROW_SIZE + (Blockly.BlockSvg.DROPDOWN_ARROW_PADDING * 1.5);
-
+  
   this.sourceBlock_.getSvgRoot().appendChild(this.fieldGroup_);
 
   var thumbX = Blockly.BlockSvg.DROPDOWN_ARROW_PADDING / 2;

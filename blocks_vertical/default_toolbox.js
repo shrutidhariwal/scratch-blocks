@@ -548,7 +548,6 @@ Blockly.Blocks.defaultToolbox = '<xml id="toolbox-categories" style="display: no
         '</shadow>' +
       '</value>' +
     '</block>' +
-    
     '<block type="extension_music_play_note" id="extension_music_play_note">' +
       '<value name="NOTE">' +
         '<shadow type="note">' +
