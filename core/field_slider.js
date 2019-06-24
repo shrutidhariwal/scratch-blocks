@@ -264,27 +264,13 @@ Blockly.FieldSlider.prototype.setValue = function(slider) {
   if (!slider) {
     return;  // No change
   }
-  if (!Array.isArray(slider)) {
-    this.sliders_ = slider.split(',');
-    // Convert all the slider array elements from strings into floats.
-    for(var i=0; i<this.sliders_.length;i++) this.sliders_[i] = +this.sliders_[i];
-   // if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
-   //   Blockly.Events.fire(new Blockly.Events.Change(
-   //       this.sourceBlock_, 'field', this.name, this.sliders_, slider));
-   // }
-
-  } else {
-    this.sliders_ = slider;
-    
-   // if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
-   //   Blockly.Events.fire(new Blockly.Events.Change(
-   //       this.sourceBlock_, 'field', this.name, this.sliders_, slider.toString()));
-   // }
-  }
   
-  
-  
-  this.updateSlider_();
+  console.log(slider);
+  if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
+    Blockly.Events.fire(new Blockly.Events.Change(
+        this.sourceBlock_, 'field', this.name, this.sliders_.toString(), slider));
+    }
+ this.sliders_ = JSON.parse("[" + slider + "]");
 };
 
 /**
@@ -292,15 +278,8 @@ Blockly.FieldSlider.prototype.setValue = function(slider) {
  * @return {String} Current slider values.
  */
 Blockly.FieldSlider.prototype.getValue = function() {
-  let result = '';
-  for (let i = 0; i < this.sliders_.length; i++) {
-    result += this.sliders_[i];
-    if (i !== (this.sliders_.length - 1)) {
-      result += ',';
-    }
-  }
   console.log('getValue was called');
-  return result;
+  return this.sliders_.toString();
 };
 
 /**
@@ -425,6 +404,8 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, index, fill, maxH
 
 Blockly.FieldSlider.prototype.setSliderNode_ = function(sliderIndex, newHeight) {
   let numSliders = this.sliders_.length;
+  let slidersCopy = this.sliders_.slice(0);
+  
   if (sliderIndex < 0 || sliderIndex > numSliders) return;
   if (newHeight < 0) {
     newHeight = 0;
@@ -441,20 +422,20 @@ Blockly.FieldSlider.prototype.setSliderNode_ = function(sliderIndex, newHeight) 
   for (var i = 0; i < numSliders; i++){
     if (i != sliderIndex) {
       if (sumOfRest === 0) {
-        this.sliders_[i] = this.sliders_[i] + heightDiff / (numSliders - 1);
+        slidersCopy[i] = slidersCopy[i] + heightDiff / (numSliders - 1);
 
       } else {
-        this.sliders_[i] = this.sliders_[i] + (heightDiff * this.sliders_[i] / sumOfRest);
-        if (this.sliders_[i] < 0) {
-          this.sliders_[i] = 0;
+        slidersCopy[i] = slidersCopy[i] + (heightDiff * slidersCopy[i] / sumOfRest);
+        if (slidersCopy[i] < 0) {
+          slidersCopy[i] = 0;
         }
       }
       
       
     }
   }
-  this.sliders_[sliderIndex] = newHeight;
-  this.setValue(this.sliders_);
+  slidersCopy[sliderIndex] = newHeight;
+  this.setValue(slidersCopy.toString());
 };
 
 /**
