@@ -587,6 +587,7 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
   var nodeSize = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
   var nodePad = Blockly.FieldSlider.SLIDER_NODE_PAD;
   var dy = e.clientY - bBox.top;
+  
   this.sliderMoveWrapper_ =
     Blockly.bindEvent_(document.body, 'mousemove', this, this.onMouseMove);
   this.sliderReleaseWrapper_ =
@@ -645,12 +646,6 @@ Blockly.FieldSlider.prototype.checkForSlider_ = function(e) {
   var nodeSize = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
   var nodePad = Blockly.FieldSlider.SLIDER_NODE_PAD;
   var dx = e.clientX - bBox.left;
-  var dy = e.clientY - bBox.top;
-  var min = nodePad / 2;
-  var max = bBox.width - (nodePad / 2);
-  if (dx < min || dx > max || dy < min || dy > max) {
-    return -1;
-  }
   var xDiv = Math.trunc((dx - nodePad / 2) / (nodeSize + nodePad));
   
   return xDiv;
