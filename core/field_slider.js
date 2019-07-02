@@ -493,11 +493,17 @@ Blockly.FieldSlider.prototype.updateSlider_ = function() {
     //this.sliderStage_.width = sliderSize + 'px';
 
   } 
-  
-  for (var i = 0; i < this.sliders_.length; i++) {
-    this.fillSliderNode_(this.sliderRects_, i, '#FFFFFF', Blockly.FieldSlider.MAX_SLIDER_HEIGHT, Blockly.FieldSlider.SLIDER_NODE_WIDTH, Blockly.FieldSlider.SLIDER_NODE_PAD);
-    this.fillSliderNode_(this.sliderThumbNodes_, i, '#FFFFFF', (thumbNodeSize + thumbNodePad) * 5, Blockly.FieldSlider.THUMBNAIL_NODE_SIZE,  Blockly.FieldSlider.THUMBNAIL_NODE_PAD);
+  var numExtraThumbNodes = this.sliderThumbNodes_.length - this.sliders_.length;
+  if (numExtraThumbNodes > 0) {
+    for (var i = this.sliders_.length; i < this.sliderThumbNodes_.length; i++) {
+      this.fillSliderNode_(this.sliderThumbNodes_, 0, i, '#FFFFFF', (thumbNodeSize + thumbNodePad) * 5, Blockly.FieldSlider.THUMBNAIL_NODE_SIZE,  Blockly.FieldSlider.THUMBNAIL_NODE_PAD);
+    }
   }
+  for (var i = 0; i < this.sliders_.length; i++) {
+    this.fillSliderNode_(this.sliderRects_, this.sliders_[i], i, Blockly.FieldSlider.MAX_SLIDER_HEIGHT, Blockly.FieldSlider.SLIDER_NODE_WIDTH, Blockly.FieldSlider.SLIDER_NODE_PAD);
+    this.fillSliderNode_(this.sliderThumbNodes_, this.sliders_[i], i, (thumbNodeSize + thumbNodePad) * 5, Blockly.FieldSlider.THUMBNAIL_NODE_SIZE,  Blockly.FieldSlider.THUMBNAIL_NODE_PAD);
+  }
+
 
 
   
@@ -512,8 +518,8 @@ Blockly.FieldSlider.prototype.updateSlider_ = function() {
  * @param {!number} index The sindex of the slider node.
  * @param {!string} fill The fill colour in '#rrggbb' format.
  */
-Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, index, fill, maxHeight, width, pad) {
-  var newHeight = this.sliders_[index] / 100 * maxHeight;
+Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, height, index, maxHeight, width, pad) {
+  var newHeight = height / 100.0 * maxHeight;
   if (index >= node.length) { // If the index is greater than the length of the list of svg rectangles:
     var x = (width + pad) * index + pad;
     let numSliders = this.sliders_.length;
@@ -529,8 +535,12 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, index, fill, maxH
       'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
       'fill': '#FFFFFF'
     };
-    var newSliderRect = Blockly.utils.createSvgElement('rect', attr, this.sliderStage_);
-    node.push(newSliderRect);
+    if (maxHeight === Blockly.FieldSlider.MAX_SLIDER_HEIGHT) {
+      var newSliderRect = Blockly.utils.createSvgElement('rect', attr, this.sliderStage_);
+      node.push(newSliderRect);
+    }
+    
+    
     
 
   }
