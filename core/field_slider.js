@@ -193,6 +193,13 @@ Blockly.FieldSlider.SLIDER_NODE_PAD = 5;
 Blockly.FieldSlider.MAX_SLIDER_HEIGHT = 100;
 
 /**
+ * Fixed height of the div that will contain the sliders.
+ * @type {number}
+ * @const
+ */
+Blockly.FieldSlider.SLIDER_STAGE_HEIGHT = 120;
+
+/**
  * Called when the field is placed on a block.
  * @param {Block} block The owning block.
  */
@@ -363,7 +370,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'xmlns:html': 'http://www.w3.org/1999/xhtml',
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
     'version': '1.1',
-    'height': Blockly.FieldSlider.MAX_SLIDER_HEIGHT + 'px',
+    'height': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + 'px',
     'width': sliderSize + 'px',
     'cursor': 'ns-resize'
   }, div);
@@ -399,7 +406,9 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
       'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
       'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
       'visibility': 'hidden',
-      'fill': '#000000'
+      'fill': '#000000',
+      'font-size': '12'
+      //'text-anchor': 'middle'
     };
 
     var newSliderText = Blockly.utils.createSvgElement('text', attr, this.sliderStage_);
@@ -558,7 +567,6 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, height, index, ma
     var x = (width + pad) * index + pad;
     let numSliders = this.sliders_.length;
     var div = Blockly.DropDownDiv.getContentDiv();
-    
     // Build the SVG DOM.
     //console.log(node);
     var attr = {
@@ -571,14 +579,17 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, height, index, ma
     };
     if (maxHeight === Blockly.FieldSlider.MAX_SLIDER_HEIGHT) {
       var newSliderRect = Blockly.utils.createSvgElement('rect', attr, this.sliderStage_);
+      newSliderRect.setAttribute('y', Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight);
       node.push(newSliderRect);
-      attr = attr = {
-        'x': x + 'px', 'y': (maxHeight - newHeight) + 'px',
+      attr = {
+        'x': x + 'px', 'y': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight) + 'px',
         'width':  Blockly.FieldSlider.SLIDER_NODE_WIDTH,
         'height': Blockly.FieldSlider.SLIDER_NODE_WIDTH,
         'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
         'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
-        'fill': '#000000'
+        'fill': '#000000',
+        'font-size': '12',
+        'visibility': 'hidden'
       };
       var newSliderText = Blockly.utils.createSvgElement('text', attr, this.sliderStage_);
       newSliderText.innerHTML = Math.round(height) + '';
@@ -592,11 +603,14 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(node, height, index, ma
   //if (!node || !node[index] || !fill) return;
   else {
     if (maxHeight === Blockly.FieldSlider.MAX_SLIDER_HEIGHT) {
-      this.sliderTexts_[index].setAttribute('y', (maxHeight - newHeight));
+      this.sliderTexts_[index].setAttribute('y', (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight));
       this.sliderTexts_[index].innerHTML = Math.round(height) + '';
+      node[index].setAttribute('y', (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight));
+    } else {
+      node[index].setAttribute('y', (maxHeight - newHeight));
     }
     node[index].setAttribute('height', newHeight);
-    node[index].setAttribute('y', (maxHeight - newHeight));
+    
   }
 };
 
@@ -645,7 +659,7 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
   var bBox = this.sliderStage_.getBoundingClientRect();
   var nodeSize = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
   var nodePad = Blockly.FieldSlider.SLIDER_NODE_PAD;
-  var dy = e.clientY - bBox.top;
+  var dy = e.clientY - bBox.top - (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.MAX_SLIDER_HEIGHT);
   
   this.sliderMoveWrapper_ =
     Blockly.bindEvent_(document.body, 'mousemove', this, this.onMouseMove);
@@ -690,7 +704,8 @@ Blockly.FieldSlider.prototype.onMouseUp = function() {
 Blockly.FieldSlider.prototype.onMouseMove = function(e) {
   e.preventDefault();
   var bBox = this.sliderStage_.getBoundingClientRect();
-  var dy = e.clientY - bBox.top;
+  var dy = e.clientY - bBox.top - (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.MAX_SLIDER_HEIGHT);
+
   
   var sliderHit = this.currentSlider_;
   var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
