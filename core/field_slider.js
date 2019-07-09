@@ -641,9 +641,7 @@ Blockly.FieldSlider.prototype.setSliderNode_ = function(sliderIndex, newHeight) 
         if (slidersCopy[i] < 0) {
           slidersCopy[i] = 0;
         }
-      }
-      
-      
+      } 
     }
   }
   slidersCopy[sliderIndex] = newHeight;
