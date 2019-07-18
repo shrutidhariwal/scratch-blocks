@@ -438,7 +438,12 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     // Put the textboxes into the containers.
     var textbox = document.createElement('input');
     textbox.style.width = (Blockly.FieldSlider.SLIDER_NODE_PAD + Blockly.FieldSlider.SLIDER_NODE_WIDTH) + 'px';
-    textbox.defaultValue = this.sliderStrings_[i];
+    if (i >= this.sliderStrings_.length) {
+      textbox.defaultValue = i + 1;
+    } else {
+      textbox.defaultValue = this.sliderStrings_[i];
+    }
+    
     textBoxContainer.appendChild(textbox);
     this.textboxes_.push(textbox);
     var textboxFunction = this.keyboardListenerFactory(i);
@@ -556,11 +561,13 @@ Blockly.FieldSlider.prototype.handleReduceNumSlidersEvent = function() {
   currentValue--;
   var arrayValue = 100.0 / currentValue;
   var newArray = [];
+  var newStrings = [];
   for (var i = 0; i < currentValue; i++){
     newArray.push(arrayValue);
+    newStrings.push(i + 1);
   }
 
-  this.setValue(newArray.toString());
+  this.setValue(newArray.toString() + ';' + newStrings.toString());
   
 }
 
@@ -573,11 +580,13 @@ Blockly.FieldSlider.prototype.handleIncreaseNumSlidersEvent = function () {
   currentValue++;
   var arrayValue = 100.0 / currentValue;
   var newArray = [];
+  var newStrings = [];
   for (var i = 0; i < currentValue; i++){
     newArray.push(arrayValue);
+    newStrings.push(i + 1);
   }
 
-  this.setValue(newArray.toString());
+  this.setValue(newArray.toString() + ';' + newStrings.toString());
 
 }
 
@@ -585,7 +594,6 @@ Blockly.FieldSlider.prototype.keyboardListenerFactory = function (index) {
   return function () {
     var newArray = this.sliderStrings_.slice();
     newArray[index] = this.textboxes_[index].value;
-    console.log(newArray);
     this.setValue(this.sliders_.toString() + ';' + newArray.toString());
   };
 }
