@@ -415,6 +415,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   // Create the slider
   this.sliderRects_ = [];
   this.textboxes_ = [];
+  this.sliderTexts_ = [];
 
 
 
@@ -443,6 +444,9 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     } else {
       textbox.defaultValue = this.sliderStrings_[i];
     }
+    textbox.style.borderRadius = '5px';
+    textbox.style.borderColor = 'white';
+    textbox.style.textAlign = 'center';
     
     textBoxContainer.appendChild(textbox);
     this.textboxes_.push(textbox);
@@ -794,6 +798,7 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
   var sliderHit = parseInt(this.checkForSlider_(e));
   this.currentSlider_ = sliderHit;
   var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
+  
   if (newHeight < 0) {return;}
   if (sliderHit > -1 && sliderHit < numSliders) {
     this.sliderTexts_[sliderHit].setAttribute('visibility', 'visible');
@@ -833,6 +838,7 @@ Blockly.FieldSlider.prototype.onMouseMove = function(e) {
   
   var sliderHit = this.currentSlider_;
   var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
+  if (newHeight < 0) {return;}
   this.setSliderNode_(sliderHit, newHeight);
 };
 
