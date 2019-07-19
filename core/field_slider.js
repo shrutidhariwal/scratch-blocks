@@ -598,8 +598,8 @@ Blockly.FieldSlider.prototype.keyboardListenerFactory = function (index) {
   return function () {
     var newArray = this.sliderStrings_.slice();
     
-    if (this.textboxes_[index].value.match(/[^a-zA-Z0-9 ]/g)) {
-      this.textboxes_[index].value = this.textboxes_[index].value.replace(/[^a-zA-Z0-9 ]/g, '');
+    if (this.textboxes_[index].value.match(/[^a-zA-Z0-9 \.\-!\?]/g)) {
+      this.textboxes_[index].value = this.textboxes_[index].value.replace(/[^a-zA-Z0-9 \.\-!\?]/g, '');
     }
     newArray[index] = this.textboxes_[index].value;
     this.setValue(this.sliders_.toString() + ';' + newArray.toString());
