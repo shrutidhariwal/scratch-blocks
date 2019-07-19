@@ -424,7 +424,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   for (var i = 0; i < Blockly.FieldSlider.MAX_SLIDER_NUMBER; i++) {
     // Create the rectangle svg objects, to be used as sliders.
     var x = (Blockly.FieldSlider.SLIDER_NODE_WIDTH * i) +
-      (Blockly.FieldSlider.SLIDER_NODE_PAD * (i + 1));
+      (Blockly.FieldSlider.SLIDER_NODE_PAD * (i + 0.5));
 
     
     // Add the svg containers for the textboxes.
@@ -613,7 +613,7 @@ Blockly.FieldSlider.prototype.updateSlider_ = function() {
 
   let numSliders = this.sliders_.length;
   var sliderSize = (Blockly.FieldSlider.SLIDER_NODE_WIDTH * numSliders) +
-    (Blockly.FieldSlider.SLIDER_NODE_PAD * (numSliders + 0.5));
+    (Blockly.FieldSlider.SLIDER_NODE_PAD * numSliders);
   // If the svg object to contain the rectangles has been initialized:
 
   
@@ -852,7 +852,7 @@ Blockly.FieldSlider.prototype.checkForSlider_ = function(e) {
   var nodeSize = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
   var nodePad = Blockly.FieldSlider.SLIDER_NODE_PAD;
   var dx = e.clientX - bBox.left;
-  var xDiv = Math.trunc((dx - nodePad / 2) / (nodeSize + nodePad));
+  var xDiv = Math.trunc((dx) / (nodeSize + nodePad));
   
   return xDiv;
 };
