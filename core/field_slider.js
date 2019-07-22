@@ -310,21 +310,21 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
   }
   
   
-  var newArray = sliderValue.split(';');
+  var newArray = sliderValue.split('|');
   var sliders = newArray[0];
   var strings = newArray[1];
 
   if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
-    var oldValue = this.sliders_.toString() + ';' + this.sliderStrings_.toString();
+    var oldValue = this.sliders_.toString() + '|' + this.sliderStrings_.toString();
     Blockly.Events.fire(new Blockly.Events.Change( // Change the value of the block in Blockly.
         // The fourth argument to this function is the old value of the field,
         // The fifth argument is the new value.
-        this.sourceBlock_, 'field', this.name, oldValue, sliders + ';' + strings));
+        this.sourceBlock_, 'field', this.name, oldValue, sliders + '|' + strings));
     }
   // Set the new value of this.sliders_ only after changing the field in the block
   // in order to have atomicity. This is the only place where this.sliders_ is changed.
   this.sliders_ = JSON.parse("[" + sliders + "]");
-  this.sliderStrings_ = strings.split(',');
+  this.sliderStrings_ = strings.split('~');
   this.updateSlider_();
 };
 
@@ -335,7 +335,7 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
 Blockly.FieldSlider.prototype.getValue = function() {
   // Report the value as a string because Blockly cannot handle arrays.
   // Also safety from rep exposure.
-  return this.sliders_.toString() + ';' + this.sliderStrings_.toString();
+  return this.sliders_.toString() + '|' + this.sliderStrings_.join('~');
 };
 
 /**
@@ -571,7 +571,7 @@ Blockly.FieldSlider.prototype.handleReduceNumSlidersEvent = function() {
     newStrings.push(i + 1);
   }
 
-  this.setValue(newArray.toString() + ';' + newStrings.toString());
+  this.setValue(newArray.toString() + '|' + newStrings.join('~'));
   
 }
 
@@ -590,19 +590,19 @@ Blockly.FieldSlider.prototype.handleIncreaseNumSlidersEvent = function () {
     newStrings.push(i + 1);
   }
 
-  this.setValue(newArray.toString() + ';' + newStrings.toString());
+  this.setValue(newArray.toString() + '|' + newStrings.join('~'));
 
 }
 
 Blockly.FieldSlider.prototype.keyboardListenerFactory = function (index) {
   return function () {
     var newArray = this.sliderStrings_.slice();
-    
-    if (this.textboxes_[index].value.match(/[^a-zA-Z0-9 \.\-!\?]/g)) {
-      this.textboxes_[index].value = this.textboxes_[index].value.replace(/[^a-zA-Z0-9 \.\-!\?]/g, '');
+    // Allow some special characters in the textboxes but ban all others.
+    if (this.textboxes_[index].value.match(/\||~/g)) {
+      this.textboxes_[index].value = this.textboxes_[index].value.replace(/\||~/g, '');
     }
     newArray[index] = this.textboxes_[index].value;
-    this.setValue(this.sliders_.toString() + ';' + newArray.toString());
+    this.setValue(this.sliders_.toString() + '|' + newArray.join('~'));
   };
 }
 
@@ -779,7 +779,7 @@ Blockly.FieldSlider.prototype.setSliderNode_ = function(sliderIndex, newHeight) 
     }
   }
   slidersCopy[sliderIndex] = newHeight;
-  this.setValue(slidersCopy.toString() + ';' + this.sliderStrings_.toString());
+  this.setValue(slidersCopy.toString() + '|' + this.sliderStrings_.join('~'));
 };
 
 /**
@@ -838,8 +838,6 @@ Blockly.FieldSlider.prototype.onMouseMove = function(e) {
   e.preventDefault();
   var bBox = this.sliderStage_.getBoundingClientRect();
   var dy = e.clientY - bBox.top - (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.MAX_SLIDER_HEIGHT);
-
-  
   var sliderHit = this.currentSlider_;
   var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
   if (newHeight < 0) {return;}
@@ -857,7 +855,6 @@ Blockly.FieldSlider.prototype.checkForSlider_ = function(e) {
   var nodePad = Blockly.FieldSlider.SLIDER_NODE_PAD;
   var dx = e.clientX - bBox.left;
   var xDiv = Math.trunc((dx) / (nodeSize + nodePad));
-  
   return xDiv;
 };
 
