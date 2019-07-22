@@ -475,8 +475,6 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
 
     attr = {
       'x': x + 'px', 'y': y + 'px',
-      'width':  Blockly.FieldSlider.SLIDER_NODE_WIDTH,
-      'height': Blockly.FieldSlider.SLIDER_NODE_WIDTH,
       'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
       'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
       'visibility': 'hidden',
@@ -568,7 +566,7 @@ Blockly.FieldSlider.prototype.handleReduceNumSlidersEvent = function() {
   var newStrings = [];
   for (var i = 0; i < currentValue; i++){
     newArray.push(arrayValue);
-    newStrings.push(i + 1);
+    newStrings.push(this.sliderStrings_[i]);
   }
 
   this.setValue(newArray.toString() + '|' + newStrings.join('~'));
@@ -584,11 +582,11 @@ Blockly.FieldSlider.prototype.handleIncreaseNumSlidersEvent = function () {
   currentValue++;
   var arrayValue = 100.0 / currentValue;
   var newArray = [];
-  var newStrings = [];
+  var newStrings = this.sliderStrings_.slice();
   for (var i = 0; i < currentValue; i++){
     newArray.push(arrayValue);
-    newStrings.push(i + 1);
   }
+  newStrings.push(newArray.length + '');
 
   this.setValue(newArray.toString() + '|' + newStrings.join('~'));
 
@@ -662,13 +660,14 @@ Blockly.FieldSlider.prototype.updateSlider_ = function() {
  * @param {!string} fill The fill colour in '#rrggbb' format.
  */
 Blockly.FieldSlider.prototype.fillSliderNode_ = function(height, index) {
+  var pad = Blockly.FieldSlider.SLIDER_NODE_PAD;
+  var width = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
+  var x = width * index + pad * (index + 0.5);
   if (index >= this.sliderRects_.length) { // If the index is greater than the length of the list of svg rectangles:
     var maxHeight = Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
     var newHeight = height / 100.0 * maxHeight;
 
-    var pad = Blockly.FieldSlider.SLIDER_NODE_PAD;
-    var width = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
-    var x = (width + pad) * index + pad;
+    
     let numSliders = this.sliders_.length;
     var div = Blockly.DropDownDiv.getContentDiv();
 
@@ -710,8 +709,8 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(height, index) {
 
     // Create the text box.
     attr = {
-      'x': x + 'px', 'y': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight) + 'px',
-      'width': Blockly.FieldSlider.SLIDER_NODE_WIDTH,
+      'x': x + 'px', 'y': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight) - 10 + 'px',
+      'textLength': '6em',
       'height': Blockly.FieldSlider.SLIDER_NODE_WIDTH,
       'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
       'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
@@ -728,8 +727,11 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(height, index) {
     var maxHeight = Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
     var newHeight = height / 100.0 * maxHeight;
     
-    this.sliderTexts_[index].setAttribute('y', (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight));
+    this.sliderTexts_[index].setAttribute('y', (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight - 10));
     this.sliderTexts_[index].innerHTML = Math.round(height) + '';
+    var textWidth = this.sliderTexts_[index].getBoundingClientRect().width;
+    this.sliderTexts_[index].setAttribute('x', x - (textWidth - Blockly.FieldSlider.SLIDER_NODE_WIDTH)/2);
+
     
 
 
