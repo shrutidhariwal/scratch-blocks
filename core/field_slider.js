@@ -31,9 +31,7 @@ goog.provide('Blockly.FieldSlider');
 
 goog.require('Blockly.DropDownDiv');
 
-//const random = require('math-random');
 
-//import trashCanIcon from '../media/waste-bin.svg';
 
 /**
  * Class for a slider field.
@@ -260,7 +258,7 @@ Blockly.FieldSlider.BUTTON_PAD = 4;
  * @type {number}
  * @const
  */
-Blockly.FieldSlider.BOTTOM_MARGIN = 30;
+Blockly.FieldSlider.BOTTOM_MARGIN = 45;
 
 /**
  * Height of the input boxes.
@@ -275,6 +273,27 @@ Blockly.FieldSlider.INPUT_BOX_HEIGHT = 20;
  * @const
  */
 Blockly.FieldSlider.INPUT_BOX_WIDTH = 30;
+
+/**
+ * Path to the waste bin icon.
+ * @type {string}
+ * @const
+ */
+Blockly.FieldSlider.WASTEBIN_SVG_PATH = 'icons/waste-bin.svg';
+
+/**
+ * Size of the waste bin icon.
+ * @type {number}
+ * @const
+ */
+Blockly.FieldSlider.WASTEBIN_SIZE = 13;
+
+/**
+ * Margin between input boxes and wastebin
+ * @type {number}
+ * @const
+ */
+Blockly.FieldSlider.WASTEBIN_MARGIN = 5;
 
 
 /**
@@ -473,7 +492,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'y': '0px'
    // 'cursor': 'ns-resize'
   }, this.sliderStage_);
-  this.createUniformRandomButtons(buttonDiv);
+  this.createUniformRandomButtons(buttonDiv); // Draw the buttons.
 
 
 
@@ -481,24 +500,43 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   
   // Add the slider rectangles.
   for (var i = 0; i < Blockly.FieldSlider.MAX_SLIDER_NUMBER; i++) {
-    // Create the rectangle svg objects, to be used as sliders.
     var x = (Blockly.FieldSlider.SLIDER_NODE_WIDTH * i) +
       (Blockly.FieldSlider.SLIDER_NODE_PAD * (i + 0.5));
+
+
+    // Import the waste-bin svg.
+    var wasteBin = Blockly.utils.createSvgElement('image',
+      {
+        'width': Blockly.FieldSlider.WASTEBIN_SIZE,
+        'height': Blockly.FieldSlider.WASTEBIN_SIZE,
+        'x': x + (Blockly.FieldSlider.SLIDER_NODE_WIDTH - Blockly.FieldSlider.WASTEBIN_SIZE) / 2,
+        'y': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 2
+      }, this.sliderStage_);
+    wasteBin.setAttributeNS(
+      'http://www.w3.org/1999/xlink',
+      'xlink:href',
+      Blockly.mainWorkspace.options.pathToMedia + Blockly.FieldSlider.WASTEBIN_SVG_PATH
+    );
+
+
+    
 
     
     // Add the svg containers for the textboxes.
 
     var textBoxContainer = Blockly.utils.createSvgElement('foreignObject', {
-      'height': Blockly.FieldSlider.INPUT_BOX_HEIGHT,
+      'height': Blockly.FieldSlider.INPUT_BOX_HEIGHT + 2,
       'width': Blockly.FieldSlider.INPUT_BOX_WIDTH,
       'x': x - ((Blockly.FieldSlider.INPUT_BOX_WIDTH - Blockly.FieldSlider.SLIDER_NODE_WIDTH) / 2),
-      'y': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT
+      'y': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN
     }, this.sliderStage_);
 
     // Put the textboxes into the containers.
     var textbox = document.createElement('input');
     textbox.style.width = Blockly.FieldSlider.INPUT_BOX_WIDTH + 'px';
+    textbox.style.height = Blockly.FieldSlider.INPUT_BOX_HEIGHT + 'px';
     textbox.style.border = 'none';
+    textbox.style.outline = 'none';
     if (i >= this.sliderStrings_.length) {
       textbox.defaultValue = i + 1;
     } else {
@@ -556,22 +594,22 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   }
 
   // ADD SECOND BUTTON
-/*
+
   var dropDownButtonDiv2 = Blockly.utils.createSvgElement('svg', {
     'xmlns': 'http://www.w3.org/2000/svg',
     'xmlns:html': 'http://www.w3.org/1999/xhtml',
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
     'version': '1.1',
-    'height': Blockly.FieldSlider.MAX_SLIDER_HEIGHT + 'px',
-    'width': (Blockly.FieldSlider.SLIDER_NODE_WIDTH) + 'px',
+    'height': Blockly.FieldSlider.BOTTOM_MARGIN - Blockly.FieldSlider.WASTEBIN_MARGIN - 1 + 'px',
+    'width': (Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN) + 'px',
     'cursor': 'ns-resize'
   }, div);
 
 
   var foreignObjectDiv2 = Blockly.utils.createSvgElement('foreignObject', {
-    'x': 0 + 'px', 'y': 0 + 'px',
-    'width': Blockly.FieldSlider.SLIDER_NODE_WIDTH,
-    'height': Blockly.FieldSlider.MAX_SLIDER_HEIGHT,
+    'x': Blockly.FieldSlider.WASTEBIN_MARGIN + 'px', 'y': 0 + 'px',
+    'width': Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN ,
+    'height': Blockly.FieldSlider.BOTTOM_MARGIN,
     'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
     'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS
   }, dropDownButtonDiv2);
@@ -581,15 +619,16 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   button.style.display = 'flex';
   button.style.alignItems = 'center';
   button.style.justifyContent = 'center';
-  button.style.width = Blockly.FieldSlider.SLIDER_NODE_WIDTH + 'px';
-  button.style.height = Blockly.FieldSlider.SLIDER_NODE_WIDTH + 'px';
+  button.style.width = Blockly.FieldSlider.INPUT_BOX_HEIGHT + 'px';
+  button.style.height = Blockly.FieldSlider.INPUT_BOX_HEIGHT + 'px';
   button.style.color = 'black';
   button.style.backgroundColor = 'white';
   button.style.borderRadius = '5px';
-  button.style.borderColor = 'white';
+  button.style.borderColor  = 'white';
+  button.style.outline = 'none';
   
   button.addEventListener('click', this.handleIncreaseNumSlidersEvent.bind(this), false);
-  foreignObjectDiv2.appendChild(button);*/
+  foreignObjectDiv2.appendChild(button);
 
 
 
@@ -687,14 +726,14 @@ Blockly.FieldSlider.prototype.handleReduceNumSlidersEvent = function() {
 Blockly.FieldSlider.prototype.handleIncreaseNumSlidersEvent = function () {
   var currentValue = this.sliders_.length;
   if (currentValue === Blockly.FieldSlider.MAX_SLIDER_NUMBER) {return;} // Number of sliders is already at the maximum so do nothing.
-  currentValue++;
-  var arrayValue = 100.0 / currentValue;
-  var newArray = [];
+  var arrayValue = 100.0 / (currentValue + 1);
+  this.setSliderNode_(currentValue, arrayValue);
+  
+  var newArray = this.sliders_.slice();
   var newStrings = this.sliderStrings_.slice();
-  for (var i = 0; i < currentValue; i++){
-    newArray.push(arrayValue);
-  }
-  newStrings.push(newArray.length + '');
+  
+  newArray[newArray.length - 1] = arrayValue;
+  newStrings[newArray.length - 1] = newArray.length;
 
   this.setValue(newArray.toString() + '|' + newStrings.join('~'));
 
@@ -840,7 +879,7 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(height, index) {
     var textWidth = this.sliderTexts_[index].getBoundingClientRect().width;
     this.sliderTexts_[index].setAttribute('x', x - (textWidth - Blockly.FieldSlider.SLIDER_NODE_WIDTH)/2);
 
-    
+    this.textboxes_[index].value = this.sliderStrings_[index];
 
 
     this.sliderRects_[index].setAttribute('y', (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight));
@@ -859,7 +898,11 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(height, index) {
 };
 
 Blockly.FieldSlider.prototype.setSliderNode_ = function(sliderIndex, newHeight) {
+
   let numSliders = this.sliders_.length;
+  if (sliderIndex === numSliders) {
+    this.sliders_.push(0.0);
+  }
   let slidersCopy = this.sliders_.slice(0);
   
   if (sliderIndex < 0 || sliderIndex > numSliders) return;
@@ -913,7 +956,13 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
   this.currentSlider_ = sliderHit;
   var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
   
-  if (newHeight < 0) {return;}
+  if (newHeight < 0) {
+    dy = e.clientY - bBox.top;
+    if (dy > (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 2)) {
+      this.removeSlider_(sliderHit);
+    }
+    return;
+  }
 
   if (newHeight > 110) {
     this.checkForButton_(e);
@@ -958,6 +1007,22 @@ Blockly.FieldSlider.prototype.onMouseMove = function(e) {
   if (newHeight < 0 || newHeight > 110) {return;}
   this.setSliderNode_(sliderHit, newHeight);
 };
+
+Blockly.FieldSlider.prototype.removeSlider_ = function(sliderHit) {
+  this.setSliderNode_(sliderHit, 0);
+  var currentValue = this.sliders_.length;
+  if (currentValue === 2) {return;}
+  var newArray = [];
+  var newStrings = [];
+  for (var i = 0; i < currentValue; i++){
+    if (i !== sliderHit) {
+      newArray.push(this.sliders_[i]);
+      newStrings.push(this.sliderStrings_[i]);
+    }
+    
+  }
+  this.setValue(newArray.toString() + '|' + newStrings.join('~'));
+}
 
 /**
  * Check if mouse coordinates collide with a slider node.
