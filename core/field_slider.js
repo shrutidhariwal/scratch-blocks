@@ -1009,9 +1009,9 @@ Blockly.FieldSlider.prototype.onMouseMove = function(e) {
 };
 
 Blockly.FieldSlider.prototype.removeSlider_ = function(sliderHit) {
-  this.setSliderNode_(sliderHit, 0);
   var currentValue = this.sliders_.length;
   if (currentValue === 2) {return;}
+  this.setSliderNode_(sliderHit, 0);
   var newArray = [];
   var newStrings = [];
   for (var i = 0; i < currentValue; i++){
