@@ -17,6 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
+ * CREDIT:
  * waste-bin.svg icon made by Egor Rumyantsev from www.flaticon.com
  */
 
@@ -380,6 +381,7 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
   var newArray = sliderValue.split('|');
   var sliders = newArray[0];
   var strings = newArray[1];
+
 
   if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
     var oldValue = this.sliders_.toString() + '|' + this.sliderStrings_.toString();
@@ -1067,22 +1069,20 @@ Blockly.FieldSlider.prototype.setToUniform_ = function () {
 }
 
 Blockly.FieldSlider.prototype.setToRandom_ = function() {
-  var resources = 100.0;
+  var sumOfArray = 0.0;
   var numSliders = this.sliders_.length;
   var newValue;
   var newArray = [];
   var newStrings = [];
   for (var i = 0; i < numSliders; i++) {
-    if (i === (numSliders - 1)) { // If this is last slider give it the rest of the probability.
-      newArray.push(resources);
-    } else { // Else give a random ratio of the remaining probability.
-      newValue = Math.random() * resources;
-      resources -= newValue;
-      newArray.push(newValue);
-    }
     newStrings.push(this.sliderStrings_[i]);
+    newValue = Math.random();
+    newArray.push(newValue);
+    sumOfArray += newValue;
   }
-  newArray.sort(() => Math.random() - 0.5); // Shuffle the array.
+  for (var i = 0; i < numSliders; i++) {
+    newArray[i] = (newArray[i] / sumOfArray) * 100.0;
+  }
   this.setValue(newArray.toString() + '|' + newStrings.join('~'));
 }
 
