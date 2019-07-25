@@ -147,6 +147,11 @@ Blockly.FieldSlider = function(slider) {
    */
   this.sliderStrings_ = [];
 
+  /**
+   * Records which of the slider text values is currently visible.
+   */
+  this.visibleSliderText_ = null;
+
 };
 goog.inherits(Blockly.FieldSlider, Blockly.Field);
 
@@ -391,7 +396,8 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
         this.sourceBlock_, 'field', this.name, oldValue, sliders + '|' + strings));
     }
   // Set the new value of this.sliders_ only after changing the field in the block
-  // in order to have atomicity. This is the only place where this.sliders_ is changed.
+  // in order to have atomicity. This is the only place where this.sliders_ is mutated.
+
   this.sliders_ = JSON.parse("[" + sliders + "]");
   this.sliderStrings_ = strings.split('~');
   this.updateSlider_();
@@ -479,6 +485,9 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'width': sliderSize + 'px',
     'cursor': 'ns-resize'
   }, div);
+
+  this.sliderStage_.addEventListener('mousemove', this.stageHoverMoveListener_.bind(this), false);
+  this.sliderStage_.addEventListener('mouseout', this.stageMouseOut_.bind(this), false);
   
   this.sliderRects_ = [];
   this.textboxes_ = [];
@@ -971,7 +980,7 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
     return;
   }
   if (sliderHit > -1 && sliderHit < numSliders) {
-    this.sliderTexts_[sliderHit].setAttribute('visibility', 'visible');
+    //this.sliderTexts_[sliderHit].setAttribute('visibility', 'visible');
     this.setSliderNode_(sliderHit, newHeight);
     this.sliderRects_[sliderHit].style.fill = '#91dfbf';
   } else {
@@ -992,7 +1001,7 @@ Blockly.FieldSlider.prototype.onMouseUp = function() {
   }
   this.paintStyle_ = null;
   
-  this.sliderTexts_[this.currentSlider_].setAttribute('visibility', 'hidden');
+  //this.sliderTexts_[this.currentSlider_].setAttribute('visibility', 'hidden');
   this.currentSlider_ = null;
 };
 
@@ -1086,6 +1095,24 @@ Blockly.FieldSlider.prototype.setToRandom_ = function() {
   this.setValue(newArray.toString() + '|' + newStrings.join('~'));
 }
 
+
+
+Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
+  var sliderHit = this.checkForSlider_(e);
+  if (sliderHit !== this.visibleSliderText_) {
+    if (this.visibleSliderText_ !== null) {
+      this.sliderTexts_[this.visibleSliderText_].setAttribute('visibility', 'hidden');
+    }
+    this.visibleSliderText_ = sliderHit;   
+    this.sliderTexts_[sliderHit].setAttribute('visibility', 'visible');
+  }
+}
+
+Blockly.FieldSlider.prototype.stageMouseOut_ = function(e) {
+  this.sliderTexts_[this.visibleSliderText_].setAttribute('visibility', 'hidden');
+  this.visibleSliderText_ = null;
+}
+ 
 /**
  * Clean up this FieldSlider, as well as the inherited Field.
  * @return {!Function} Closure to call on destruction of the WidgetDiv.
