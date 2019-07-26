@@ -227,7 +227,7 @@ Blockly.FieldSlider.MAX_SLIDER_HEIGHT = 100;
  * @type {number}
  * @const
  */
-Blockly.FieldSlider.SLIDER_STAGE_HEIGHT = 140;//120;
+Blockly.FieldSlider.SLIDER_STAGE_HEIGHT = 140;
 
 
 /**
@@ -614,8 +614,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
     'version': '1.1',
     'height': Blockly.FieldSlider.BOTTOM_MARGIN - Blockly.FieldSlider.WASTEBIN_MARGIN - 1 + 'px',
-    'width': (Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN) + 'px',
-    'cursor': 'ns-resize'
+    'width': (Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN) + 'px'
   }, div);
 
 
@@ -1103,6 +1102,23 @@ Blockly.FieldSlider.prototype.setToRandom_ = function() {
 
 Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
   var sliderHit = this.checkForSlider_(e);
+  var bBox = this.sliderStage_.getBoundingClientRect();
+  var dy = e.clientY - bBox.top;
+  var currentCursor = this.sliderStage_.getAttribute('cursor');
+  var bottom = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT;
+  if (currentCursor === 'ns-resize') {
+    if (dy <= Blockly.FieldSlider.BUTTON_HEIGHT || dy >= bottom) {
+      this.sliderStage_.setAttribute('cursor', 'default');
+    }
+  } else if (currentCursor === 'default') {
+    if (dy > Blockly.FieldSlider.BUTTON_HEIGHT && dy < bottom) {
+      this.sliderStage_.setAttribute('cursor', 'ns-resize');
+    }
+  }
+  
+
+
+
   if (sliderHit !== this.visibleSliderText_) {
     if (this.visibleSliderText_ !== null) {
       this.sliderTexts_[this.visibleSliderText_].setAttribute('visibility', 'hidden');
@@ -1112,7 +1128,7 @@ Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
   }
 }
 
-Blockly.FieldSlider.prototype.stageMouseOut_ = function(e) {
+Blockly.FieldSlider.prototype.stageMouseOut_ = function() {
   if (this.visibleSliderText_ !== null) {
     this.sliderTexts_[this.visibleSliderText_].setAttribute('visibility', 'hidden');
   }
