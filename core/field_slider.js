@@ -982,8 +982,6 @@ Blockly.FieldSlider.prototype.setSliderNode_ = function(sliderIndex, newHeight) 
 Blockly.FieldSlider.prototype.onMouseDown = function(e) {
   let numSliders = this.sliders_.length;
   var bBox = this.sliderStage_.getBoundingClientRect();
-  var nodeSize = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
-  var nodePad = Blockly.FieldSlider.SLIDER_NODE_PAD;
   var dy = e.clientY - bBox.top - (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.MAX_SLIDER_HEIGHT);
   
   this.sliderMoveWrapper_ =
@@ -996,8 +994,9 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
   this.currentSlider_ = sliderHit;
   var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
   
-  if (newHeight < 0) {
+  if (newHeight < -5) {
     dy = e.clientY - bBox.top;
+    // This means that a waste bin icon was hit.
     if (dy > (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 2)) {
       this.removeSlider_(sliderHit);
     }
