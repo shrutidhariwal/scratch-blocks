@@ -545,6 +545,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
       'xlink:href',
       Blockly.mainWorkspace.options.pathToMedia + Blockly.FieldSlider.WASTEBIN_SVG_PATH
     );
+    wasteBin.addEventListener('click', this.removeSliderListener_.bind(this), false);
 
 
     
@@ -997,9 +998,9 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
   if (newHeight < -5) {
     dy = e.clientY - bBox.top;
     // This means that a waste bin icon was hit.
-    if (dy > (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 2)) {
+   /* if (dy > (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 2)) {
       this.removeSlider_(sliderHit);
-    }
+    } */
     return;
   }
 
@@ -1043,11 +1044,16 @@ Blockly.FieldSlider.prototype.onMouseMove = function(e) {
   var dy = e.clientY - bBox.top - (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.MAX_SLIDER_HEIGHT);
   var sliderHit = this.currentSlider_;
   var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
-  if (newHeight < 0 || newHeight > 110) {return;}
+  if (newHeight < -5 || newHeight > 110) {return;}
   this.setSliderNode_(sliderHit, newHeight);
 };
 
-Blockly.FieldSlider.prototype.removeSlider_ = function(sliderHit) {
+
+/**
+ * This listener attached to wastebin svgs and removes corresponding slider when called.
+ */
+Blockly.FieldSlider.prototype.removeSliderListener_ = function(e) {
+  var sliderHit = parseInt(this.checkForSlider_(e));
   var currentValue = this.sliders_.length;
   if (currentValue === 2) {return;}
   this.setSliderNode_(sliderHit, 0);
@@ -1058,7 +1064,6 @@ Blockly.FieldSlider.prototype.removeSlider_ = function(sliderHit) {
       newArray.push(this.sliders_[i]);
       newStrings.push(this.sliderStrings_[i]);
     }
-    
   }
   this.setValue(newArray.toString() + '|' + newStrings.join('~'));
 }
