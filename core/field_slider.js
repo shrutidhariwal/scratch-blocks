@@ -227,7 +227,7 @@ Blockly.FieldSlider.MAX_SLIDER_HEIGHT = 100;
  * @type {number}
  * @const
  */
-Blockly.FieldSlider.SLIDER_STAGE_HEIGHT = 140;
+Blockly.FieldSlider.SLIDER_STAGE_HEIGHT = 145;//140;
 
 
 /**
@@ -249,7 +249,7 @@ Blockly.FieldSlider.BUTTON_WIDTH = 24;
  * @type {number}
  * @const
  */
-Blockly.FieldSlider.BUTTON_HEIGHT = 18;
+Blockly.FieldSlider.BUTTON_HEIGHT = 17;
 
 /**
  * Padding between the buttons.
@@ -637,7 +637,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   }, div);
 
 
-  var foreignObjectDiv2 = Blockly.utils.createSvgElement('foreignObject', {
+  /*var foreignObjectDiv2 = Blockly.utils.createSvgElement('foreignObject', {
     'x': Blockly.FieldSlider.WASTEBIN_MARGIN + 'px', 'y': 0 + 'px',
     'width': Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN ,
     'height': Blockly.FieldSlider.BOTTOM_MARGIN,
@@ -652,14 +652,29 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   button.style.justifyContent = 'center';
   button.style.width = Blockly.FieldSlider.INPUT_BOX_HEIGHT + 'px';
   button.style.height = Blockly.FieldSlider.INPUT_BOX_HEIGHT + 'px';
-  button.style.color = 'black';
-  button.style.backgroundColor = 'white';
-  button.style.borderRadius = '5px';
-  button.style.borderColor  = 'white';
-  button.style.outline = 'none';
+  button.style.color = '#91dfbf';
+  button.style.backgroundColor = this.sourceBlock_.getColourTertiary();
+  button.style.borderRadius = '20px';
+  button.style.borderColor  = this.sourceBlock_.getColourTertiary();
+  button.style.outline = 'none';*/
+
+  var button = Blockly.utils.createSvgElement('circle', {
+    'cx': Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2,
+    'cy': Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2,
+    'r':  Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2,
+    'fill': this.sourceBlock_.getColourTertiary()
+  }, dropDownButtonDiv2);
+
+  var addButtonText = Blockly.utils.createSvgElement('text', {
+    'x': Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2 - 4.5,
+    'y': Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2 + 4,
+    'fill': '#91dfbf'
+  }, dropDownButtonDiv2);
+  addButtonText.innerHTML = '+';
   
   button.addEventListener('click', this.handleIncreaseNumSlidersEvent.bind(this), false);
-  foreignObjectDiv2.appendChild(button);
+  addButtonText.addEventListener('click', this.handleIncreaseNumSlidersEvent.bind(this), false);
+  
 
 
 
@@ -685,15 +700,30 @@ this.nodeCallback_ = function(e, num) {
 };
 
 Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
-  var nodeWidth = Blockly.FieldSlider.BUTTON_WIDTH / 4;
-  var nodePad = Blockly.FieldSlider.BUTTON_WIDTH / 16;
-  var nodeHeight = Blockly.FieldSlider.BUTTON_HEIGHT * 5 / 6;
+  var paddingOfPattern = 2;
+  var nodeWidth = (Blockly.FieldSlider.BUTTON_WIDTH - paddingOfPattern * 2) / 4;
+  var nodePad = (Blockly.FieldSlider.BUTTON_WIDTH - paddingOfPattern * 2) / 16;
+  var nodeHeight = (Blockly.FieldSlider.BUTTON_HEIGHT - paddingOfPattern * 2) * 5 / 6;
   var fill = '#91dfbf';
+
+  
+
+  Blockly.utils.createSvgElement('rect', {
+    'x': 0,
+    'y': 0,
+    'width': Blockly.FieldSlider.BUTTON_WIDTH,
+    'height': Blockly.FieldSlider.BUTTON_HEIGHT,
+    'fill': this.sourceBlock_.getColourTertiary(),
+    'rx': nodePad, 'ry': nodePad
+  }, button);
+
   // Create the three vertical bars to represent a uniform distribution.
+
+
   for (var i = 0; i < 3; i++) {
     Blockly.utils.createSvgElement('rect', {
-      'x': (nodeWidth * i) + (nodePad * (i + 1)),
-      'y': 0,
+      'x': (nodeWidth * i) + (nodePad * (i + 1)) + paddingOfPattern,
+      'y': paddingOfPattern,
       'width': nodeWidth, 'height': nodeHeight,
       'rx': nodePad, 'ry': nodePad,
       'fill': fill
@@ -701,21 +731,30 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
   }
   // Create the horizontal line underneath the vertical bars.
   Blockly.utils.createSvgElement('rect', {
-    'x': 0,
-    'y': nodeHeight + nodePad,
-    'width': Blockly.FieldSlider.BUTTON_WIDTH,
+    'x': paddingOfPattern,
+    'y': nodeHeight + nodePad + paddingOfPattern,
+    'width': Blockly.FieldSlider.BUTTON_WIDTH - paddingOfPattern * 2,
     'height': 1,
     'fill': fill
   }, button);
 
   var leftMost = Blockly.FieldSlider.BUTTON_WIDTH + Blockly.FieldSlider.BUTTON_PAD;
-
+  // Create the random distribution button.
   var sliderHeights = [30, 80, 60];
 
+  Blockly.utils.createSvgElement('rect', {
+    'x': leftMost,
+    'y': 0,
+    'width': Blockly.FieldSlider.BUTTON_WIDTH,
+    'height': Blockly.FieldSlider.BUTTON_HEIGHT,
+    'fill': this.sourceBlock_.getColourTertiary(),
+    'rx': nodePad, 'ry': nodePad
+  }, button);
+  
   for (var i = 0; i < 3; i++) {
     Blockly.utils.createSvgElement('rect', {
-      'x': leftMost + (nodeWidth * i) + (nodePad * (i + 1)),
-      'y': nodeHeight * (1 - sliderHeights[i] / 100.0),
+      'x': leftMost + (nodeWidth * i) + (nodePad * (i + 1)) + paddingOfPattern,
+      'y': nodeHeight * (1 - sliderHeights[i] / 100.0) + paddingOfPattern,
       'width': nodeWidth,
       'height': nodeHeight * (sliderHeights[i] / 100.0),
       'rx': nodePad, 'ry': nodePad,
@@ -723,9 +762,9 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
     }, button);
   }
   Blockly.utils.createSvgElement('rect', {
-    'x': leftMost,
-    'y': nodeHeight + nodePad,
-    'width': Blockly.FieldSlider.BUTTON_WIDTH,
+    'x': leftMost + paddingOfPattern,
+    'y': nodeHeight + nodePad + paddingOfPattern,
+    'width': Blockly.FieldSlider.BUTTON_WIDTH - paddingOfPattern * 2,
     'height': 1,
     'fill': fill
   }, button);
