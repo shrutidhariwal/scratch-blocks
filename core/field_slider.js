@@ -637,48 +637,24 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   }, div);
 
 
-  /*var foreignObjectDiv2 = Blockly.utils.createSvgElement('foreignObject', {
-    'x': Blockly.FieldSlider.WASTEBIN_MARGIN + 'px', 'y': 0 + 'px',
-    'width': Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN ,
-    'height': Blockly.FieldSlider.BOTTOM_MARGIN,
-    'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
-    'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS
-  }, dropDownButtonDiv2);
-
-  var button = document.createElement('button');
-  button.innerHTML = '+';
-  button.style.display = 'flex';
-  button.style.alignItems = 'center';
-  button.style.justifyContent = 'center';
-  button.style.width = Blockly.FieldSlider.INPUT_BOX_HEIGHT + 'px';
-  button.style.height = Blockly.FieldSlider.INPUT_BOX_HEIGHT + 'px';
-  button.style.color = '#91dfbf';
-  button.style.backgroundColor = this.sourceBlock_.getColourTertiary();
-  button.style.borderRadius = '20px';
-  button.style.borderColor  = this.sourceBlock_.getColourTertiary();
-  button.style.outline = 'none';*/
-
   var button = Blockly.utils.createSvgElement('circle', {
-    'cx': Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2,
+    'cx': Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2 + Blockly.FieldSlider.WASTEBIN_MARGIN,
     'cy': Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2,
     'r':  Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2,
     'fill': this.sourceBlock_.getColourTertiary()
   }, dropDownButtonDiv2);
 
   var addButtonText = Blockly.utils.createSvgElement('text', {
-    'x': Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2 - 4.5,
+    'x': Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2 + 0.5,
     'y': Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2 + 4,
     'fill': '#91dfbf'
   }, dropDownButtonDiv2);
   addButtonText.innerHTML = '+';
   
+  
   button.addEventListener('click', this.handleIncreaseNumSlidersEvent.bind(this), false);
   addButtonText.addEventListener('click', this.handleIncreaseNumSlidersEvent.bind(this), false);
   
-
-
-
-
 
 
 
@@ -699,6 +675,9 @@ this.nodeCallback_ = function(e, num) {
   console.log(num);
 };
 
+/**
+ * Create the "return to uniform" and "random distribution" buttons.
+ */
 Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
   var paddingOfPattern = 2;
   var nodeWidth = (Blockly.FieldSlider.BUTTON_WIDTH - paddingOfPattern * 2) / 4;
