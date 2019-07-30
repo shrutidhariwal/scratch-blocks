@@ -143,7 +143,7 @@ Blockly.FieldSlider = function(slider) {
   this.thumbnail_ = null;
 
   /**
-   * Array to hold the strings that each slider reprsents
+   * Array to hold the strings that each slider represents
    */
   this.sliderStrings_ = [];
 
@@ -151,6 +151,21 @@ Blockly.FieldSlider = function(slider) {
    * Records which of the slider text values is currently visible.
    */
   this.visibleSliderText_ = null;
+
+  /**
+   * Holds the SVG element representing the add slider button.
+   */
+  this.addSliderButton_ = null;
+
+  /**
+   * Holds the SVG element representing the random distribution button.
+   */
+  this.randomButton_ = null;
+
+  /**
+   * Holds the SVG element representing the uniform distribution button.
+   */
+  this.uniformButton_ = null;
 
 };
 goog.inherits(Blockly.FieldSlider, Blockly.Field);
@@ -645,6 +660,9 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'fill': this.sourceBlock_.getColourTertiary()
   }, dropDownButtonDiv2);
 
+
+  
+
   var addButtonText = Blockly.utils.createSvgElement('text', {
     'x': Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2 + 0.5,
     'y': Blockly.FieldSlider.INPUT_BOX_HEIGHT / 2 + 4,
@@ -652,9 +670,14 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   }, dropDownButtonDiv2);
   addButtonText.innerHTML = '+';
   
-  
+  console.log(this.sourceBlock_.getColourTertiary());
   button.addEventListener('click', this.handleIncreaseNumSlidersEvent.bind(this), false);
+  button.addEventListener('mouseover', this.buttonMouseOver_.bind(this), false);
+  button.addEventListener('mouseout', this.buttonMouseOut_.bind(this), false);
+  addButtonText.addEventListener('mouseover', this.buttonMouseOver_.bind(this), false);
+  addButtonText.addEventListener('mouseout', this.buttonMouseOut_.bind(this), false);
   addButtonText.addEventListener('click', this.handleIncreaseNumSlidersEvent.bind(this), false);
+  this.addSliderButton_ = button;
   
 
 
@@ -688,7 +711,7 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
 
   
 
-  Blockly.utils.createSvgElement('rect', {
+  this.uniformButton_ = Blockly.utils.createSvgElement('rect', {
     'x': 0,
     'y': 0,
     'width': Blockly.FieldSlider.BUTTON_WIDTH,
@@ -697,32 +720,40 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
     'rx': nodePad, 'ry': nodePad
   }, button);
 
+  this.uniformButton_.addEventListener('mouseover', this.uniformMouseOver_.bind(this), false);
+  this.uniformButton_.addEventListener('mouseout', this.uniformMouseOut_.bind(this), false);
+
   // Create the three vertical bars to represent a uniform distribution.
 
-
+  var node;
   for (var i = 0; i < 3; i++) {
-    Blockly.utils.createSvgElement('rect', {
+    node = Blockly.utils.createSvgElement('rect', {
       'x': (nodeWidth * i) + (nodePad * (i + 1)) + paddingOfPattern,
       'y': paddingOfPattern,
       'width': nodeWidth, 'height': nodeHeight,
       'rx': nodePad, 'ry': nodePad,
       'fill': fill
-    }, button);
+    }, button); 
+    node.addEventListener('mouseover', this.uniformMouseOver_.bind(this), false);
+    node.addEventListener('mouseout', this.uniformMouseOut_.bind(this), false);
+
   }
   // Create the horizontal line underneath the vertical bars.
-  Blockly.utils.createSvgElement('rect', {
+  node = Blockly.utils.createSvgElement('rect', {
     'x': paddingOfPattern,
     'y': nodeHeight + nodePad + paddingOfPattern,
     'width': Blockly.FieldSlider.BUTTON_WIDTH - paddingOfPattern * 2,
     'height': 1,
     'fill': fill
   }, button);
+  node.addEventListener('mouseover', this.uniformMouseOver_.bind(this), false);
+  node.addEventListener('mouseout', this.uniformMouseOut_.bind(this), false);
 
   var leftMost = Blockly.FieldSlider.BUTTON_WIDTH + Blockly.FieldSlider.BUTTON_PAD;
   // Create the random distribution button.
   var sliderHeights = [30, 80, 60];
 
-  Blockly.utils.createSvgElement('rect', {
+  this.randomButton_ = Blockly.utils.createSvgElement('rect', {
     'x': leftMost,
     'y': 0,
     'width': Blockly.FieldSlider.BUTTON_WIDTH,
@@ -730,9 +761,13 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
     'fill': this.sourceBlock_.getColourTertiary(),
     'rx': nodePad, 'ry': nodePad
   }, button);
+
+  this.randomButton_.addEventListener('mouseover', this.randomMouseOver_.bind(this), false);
+  this.randomButton_.addEventListener('mouseout', this.randomMouseOut_.bind(this), false);
+
   
   for (var i = 0; i < 3; i++) {
-    Blockly.utils.createSvgElement('rect', {
+    node = Blockly.utils.createSvgElement('rect', {
       'x': leftMost + (nodeWidth * i) + (nodePad * (i + 1)) + paddingOfPattern,
       'y': nodeHeight * (1 - sliderHeights[i] / 100.0) + paddingOfPattern,
       'width': nodeWidth,
@@ -740,14 +775,19 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
       'rx': nodePad, 'ry': nodePad,
       'fill': fill
     }, button);
+    node.addEventListener('mouseover', this.randomMouseOver_.bind(this), false);
+    node.addEventListener('mouseout', this.randomMouseOut_.bind(this), false);
   }
-  Blockly.utils.createSvgElement('rect', {
+
+  node = Blockly.utils.createSvgElement('rect', {
     'x': leftMost + paddingOfPattern,
     'y': nodeHeight + nodePad + paddingOfPattern,
     'width': Blockly.FieldSlider.BUTTON_WIDTH - paddingOfPattern * 2,
     'height': 1,
     'fill': fill
   }, button);
+  node.addEventListener('mouseover', this.randomMouseOver_.bind(this), false);
+  node.addEventListener('mouseout', this.randomMouseOut_.bind(this), false);
 }
 
 
@@ -1147,9 +1187,6 @@ Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
       this.sliderStage_.setAttribute('cursor', 'ns-resize');
     }
   }
-  
-
-
 
   if (sliderHit !== this.visibleSliderText_) {
     if (this.visibleSliderText_ !== null) {
@@ -1166,6 +1203,28 @@ Blockly.FieldSlider.prototype.stageMouseOut_ = function() {
   }
   this.visibleSliderText_ = null;
 }
+
+Blockly.FieldSlider.prototype.buttonMouseOver_ = function() {
+  this.addSliderButton_.setAttribute('fill', '#FFFFFF');
+}
+Blockly.FieldSlider.prototype.buttonMouseOut_ = function() {
+  this.addSliderButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+}
+
+Blockly.FieldSlider.prototype.randomMouseOver_ = function() {
+  this.randomButton_.setAttribute('fill', '#FFFFFF');
+}
+Blockly.FieldSlider.prototype.randomMouseOut_ = function() {
+  this.randomButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+}
+
+Blockly.FieldSlider.prototype.uniformMouseOver_ = function() {
+  this.uniformButton_.setAttribute('fill', '#FFFFFF');
+}
+Blockly.FieldSlider.prototype.uniformMouseOut_ = function() {
+  this.uniformButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+}
+ 
  
 /**
  * Clean up this FieldSlider, as well as the inherited Field.
