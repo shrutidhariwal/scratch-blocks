@@ -447,53 +447,6 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   
 
 
-  
-  
-
-  
-  //BEGIN ADD FIRST BUTTON
-
-  //TODO Add plus and minus signs instead of button/input
-  /*
-  var dropDownButtonDiv = Blockly.utils.createSvgElement('svg', {
-    'xmlns': 'http://www.w3.org/2000/svg',
-    'xmlns:html': 'http://www.w3.org/1999/xhtml',
-    'xmlns:xlink': 'http://www.w3.org/1999/xlink',
-    'version': '1.1',
-    'height': Blockly.FieldSlider.MAX_SLIDER_HEIGHT + 'px',
-    'width': Blockly.FieldSlider.SLIDER_NODE_WIDTH + 'px',
-    'cursor': 'ns-resize'
-  }, div);
-
-
-  var foreignObjectDiv = Blockly.utils.createSvgElement('foreignObject', {
-    'x': 0 + 'px', 'y': 0 + 'px',
-    'width': Blockly.FieldSlider.SLIDER_NODE_WIDTH,
-    'height': Blockly.FieldSlider.MAX_SLIDER_HEIGHT,
-    'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
-    'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS
-  }, dropDownButtonDiv);
-  
-
-  var button = document.createElement('button');
-  button.innerHTML = '-';
-  button.style.display = 'flex';
-  button.style.alignItems = 'center';
-  button.style.justifyContent = 'center';
-  button.style.width = Blockly.FieldSlider.SLIDER_NODE_WIDTH + 'px';
-  button.style.height = Blockly.FieldSlider.SLIDER_NODE_WIDTH + 'px';
-  button.style.color = 'black';
-  button.style.backgroundColor = 'white';
-  button.style.borderRadius = '5px';
-  button.style.borderColor = 'white';
-  
-  button.addEventListener('click', this.handleReduceNumSlidersEvent.bind(this), false);
-  foreignObjectDiv.appendChild(button); */
-
-  // END ADD FIRST BUTTON
-
-
-
   Blockly.utils.createSvgElement('svg', {
     'xmlns': 'http://www.w3.org/2000/svg',
     'xmlns:html': 'http://www.w3.org/1999/xhtml',
@@ -514,7 +467,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   }, div);
 
   this.sliderStage_.addEventListener('mousemove', this.stageHoverMoveListener_.bind(this), false);
-  this.sliderStage_.addEventListener('mouseout', this.stageMouseOut_.bind(this), false);
+  this.sliderStage_.addEventListener('mouseleave', this.stageMouseOut_.bind(this), false);
   
   this.sliderRects_ = [];
   this.textboxes_ = [];
