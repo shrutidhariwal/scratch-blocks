@@ -670,7 +670,6 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   }, dropDownButtonDiv2);
   addButtonText.innerHTML = '+';
   
-  console.log(this.sourceBlock_.getColourTertiary());
   button.addEventListener('click', this.handleIncreaseNumSlidersEvent.bind(this), false);
   button.addEventListener('mouseover', this.buttonMouseOver_.bind(this), false);
   button.addEventListener('mouseout', this.buttonMouseOut_.bind(this), false);
@@ -891,69 +890,16 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(height, index) {
   var pad = Blockly.FieldSlider.SLIDER_NODE_PAD;
   var width = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
   var x = width * index + pad * (index + 0.5);
-  if (index >= this.sliderRects_.length) { // If the index is greater than the length of the list of svg rectangles:
-    var maxHeight = Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
-    var newHeight = height / 100.0 * maxHeight;
-
-    
-    let numSliders = this.sliders_.length;
-    var div = Blockly.DropDownDiv.getContentDiv();
-
-    // Create the actual slider rectangle on the dropdown menu.
-    var attr = {
-      'x': x, 'y': (maxHeight - newHeight),
-      'width':  width,
-      'height': newHeight,
-      'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
-      'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
-      'fill': '#FFFFFF'
-    };
-
-    
-    
-    var newSliderRect = Blockly.utils.createSvgElement('rect', attr, this.sliderStage_);
-    newSliderRect.setAttribute('y', Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight);
-    this.sliderRects_.push(newSliderRect);
-
-    // Create the thumbnail of the slider rectangle.
-
-    maxHeight = (Blockly.FieldSlider.THUMBNAIL_NODE_SIZE + Blockly.FieldSlider.THUMBNAIL_NODE_PAD) * 5;
-    newHeight = height / 100.0 * maxHeight;
-    pad = Blockly.FieldSlider.THUMBNAIL_NODE_PAD;
-    width = Blockly.FieldSlider.THUMBNAIL_NODE_SIZE
-    x = (width + pad) * index + pad;
-
-    attr = {
-      'x': x, 'y': (maxHeight - newHeight),
-      'width':  width,
-      'height': newHeight,
-      'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
-      'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
-      'fill': '#FFFFFF'
-    };
-    this.sliderThumbNodes_.push(newSliderRect);
-
-
-
-    // Create the text box.
-    attr = {
-      'x': x + 'px', 'y': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight) - 10 + 'px',
-      'textLength': '6em',
-      'height': Blockly.FieldSlider.SLIDER_NODE_WIDTH,
-      'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
-      'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
-      'fill': '#000000',
-      'font-size': '12',
-      'visibility': 'hidden'
-    };
-    var newSliderText = Blockly.utils.createSvgElement('text', attr, this.sliderStage_);
-    newSliderText.innerHTML = Math.round(height) + '';
-    this.sliderTexts_.push(newSliderText);
-  } 
   
-  else {
-    var maxHeight = Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
-    var newHeight = height / 100.0 * maxHeight;
+  var maxHeight = (Blockly.FieldSlider.THUMBNAIL_NODE_SIZE + Blockly.FieldSlider.THUMBNAIL_NODE_PAD) * 5;
+  var newHeight = height / 100.0 * maxHeight; 
+  
+  if (this.sliderStage_) {
+    this.sliderThumbNodes_[index].setAttribute('y', (maxHeight - newHeight)); 
+    this.sliderThumbNodes_[index].setAttribute('height', newHeight);
+
+    maxHeight = Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
+    newHeight = height / 100.0 * maxHeight;
     
     this.sliderTexts_[index].setAttribute('y', (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight - 10));
     this.sliderTexts_[index].innerHTML = Math.round(height) + '';
@@ -962,19 +908,9 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(height, index) {
 
     this.textboxes_[index].value = this.sliderStrings_[index];
 
-
     this.sliderRects_[index].setAttribute('y', (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight));
     this.sliderRects_[index].setAttribute('height', newHeight)
 
-
-
-    maxHeight = (Blockly.FieldSlider.THUMBNAIL_NODE_SIZE + Blockly.FieldSlider.THUMBNAIL_NODE_PAD) * 5;
-    newHeight = height / 100.0 * maxHeight;
-
-    this.sliderThumbNodes_[index].setAttribute('y', (maxHeight - newHeight));
-    
-    this.sliderThumbNodes_[index].setAttribute('height', newHeight);
-    
   }
 };
 
