@@ -1036,22 +1036,17 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
   var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
   
   if (newHeight < -5) {
-    dy = e.clientY - bBox.top;
-    // This means that a waste bin icon was hit.
-   /* if (dy > (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 2)) {
-      this.removeSlider_(sliderHit);
-    } */
     return;
   }
 
   if (newHeight > 110) {
+    // Checks if the random distribution or uniform distribution buttons were hit.
     this.checkForButton_(e);
     return;
   }
   if (sliderHit > -1 && sliderHit < numSliders) {
-    //this.sliderTexts_[sliderHit].setAttribute('visibility', 'visible');
     this.setSliderNode_(sliderHit, newHeight);
-    this.sliderRects_[sliderHit].style.fill = '#91dfbf';
+    this.sliderRects_[sliderHit].style.fill = this.sourceBlock_.getColourTertiary();//'#91dfbf';
   } else {
     this.paintStyle_ = null;
   }
