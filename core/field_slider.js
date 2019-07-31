@@ -166,6 +166,11 @@ Blockly.FieldSlider = function(slider) {
    * Holds the SVG element representing the uniform distribution button.
    */
   this.uniformButton_ = null;
+  
+  /**
+   * Holds the SVG element that is the white background behind the sliders.
+   */
+  this.whiteBackground_ = null;
 
 };
 goog.inherits(Blockly.FieldSlider, Blockly.Field);
@@ -487,9 +492,11 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   this.createUniformRandomButtons(buttonDiv); // Draw the buttons.
 
   
-  Blockly.utils.createSvgElement('rect', {
+  this.whiteBackground_ = Blockly.utils.createSvgElement('rect', {
     'x': '0px', 'y': Blockly.FieldSlider.BUTTON_HEIGHT + (Blockly.FieldSlider.WASTEBIN_MARGIN / 2) + 'px',
-    'width': maxWidth + 'px', 'height': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.BUTTON_HEIGHT) + 'px',
+    'width': sliderSize + 'px', 'height': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.BUTTON_HEIGHT) + 'px',
+    'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
+    'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
     'fill': '#FFFFFF'
   }, this.sliderStage_);
 
@@ -807,20 +814,14 @@ Blockly.FieldSlider.prototype.updateSlider_ = function() {
   let numSliders = this.sliders_.length;
   var sliderSize = (Blockly.FieldSlider.SLIDER_NODE_WIDTH * numSliders) +
     (Blockly.FieldSlider.SLIDER_NODE_PAD * numSliders);
-  // If the svg object to contain the rectangles has been initialized:
 
-  
   if (this.sliderStage_) {
-    // Change 
     this.sliderStage_.setAttribute('width', sliderSize + 'px');
-    //this.sliderStage_.width = sliderSize + 'px';
   } 
-  if (this.thumbnail_) {
-
-    sliderSize = (thumbNodePad * (numSliders + 1)) + thumbNodeSize * numSliders +
-    Blockly.FieldSlider.ARROW_SIZE + (Blockly.BlockSvg.DROPDOWN_ARROW_PADDING * 1.5);
-
+  if (this.whiteBackground_) {
+    this.whiteBackground_.setAttribute('width', sliderSize + 'px');
   }
+  
 
   var numExtraThumbNodes = this.sliderThumbNodes_.length - this.sliders_.length;
   
