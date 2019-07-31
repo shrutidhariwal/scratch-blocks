@@ -343,17 +343,18 @@ Blockly.FieldSlider.prototype.init = function() {
   var nodePad = Blockly.FieldSlider.THUMBNAIL_NODE_PAD;
   
   var maxHeight = ((nodeSize + nodePad)) * 5;
+  var newHeight;
   
-  var newHeight = this.sliders_[0] / 100 * maxHeight;
-  var height = newHeight;
   for (var i = 0; i < Blockly.FieldSlider.MAX_SLIDER_NUMBER; i++) {
-    if (i === 6) {
-      height = 0.0;
-    } 
+    if (i >= this.sliders_.length) {
+      newHeight = 0.0;
+    } else {
+      newHeight = this.sliders_[i] / 100 * maxHeight;
+    }
     var attr = {
       'x': ((nodeSize + nodePad) * i) + nodePad,
       'y': (maxHeight - newHeight),
-      'width': nodeSize, 'height': height,
+      'width': nodeSize, 'height': newHeight,
       'rx': nodePad, 'ry': nodePad,
       'fill': '#FFFFFF'
     };
