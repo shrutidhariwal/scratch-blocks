@@ -70,6 +70,14 @@ Blockly.FieldSlider = function(slider) {
    * @private
    */
   this.sliders_ = [];
+
+
+  /**
+   * Boolean that is true when field is operating in random mode.
+   * @type {boolean}
+   * @private
+   */
+  this.randomMode_ = false;
   
 
   /**
@@ -407,6 +415,20 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
   var newArray = sliderValue.split('|');
   var sliders = newArray[0];
   var strings = newArray[1];
+  var random;
+  if (newArray.length === 3) {
+    random = '|random';
+    
+    if (!this.randomMode_) {
+      
+      this.toggleRandomMode_();
+    }
+  } else {
+    if (this.randomMode_) {
+      this.toggleRandomMode_();
+    }
+    random = '';
+  }
 
 
   if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
@@ -414,7 +436,7 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
     Blockly.Events.fire(new Blockly.Events.Change( // Change the value of the block in Blockly.
         // The fourth argument to this function is the old value of the field,
         // The fifth argument is the new value.
-        this.sourceBlock_, 'field', this.name, oldValue, sliders + '|' + strings));
+        this.sourceBlock_, 'field', this.name, oldValue, sliders + '|' + strings + random));
     }
   // Set the new value of this.sliders_ only after changing the field in the block
   // in order to have atomicity. This is the only place where this.sliders_ is mutated.
@@ -575,6 +597,9 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
 
     
     var newSliderRect = Blockly.utils.createSvgElement('rect', attr, this.sliderStage_);
+    if (this.randomMode_) {
+      newSliderRect.setAttribute('visibility', 'hidden');
+    }
     this.sliderStage_.appendChild(newSliderRect);
     this.sliderRects_.push(newSliderRect);
 
@@ -713,12 +738,19 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
   // Create the random distribution button.
   var sliderHeights = [30, 80, 60];
 
+  var randomFill;
+  if (this.randomMode_){
+    randomFill = '#FFFFFF';
+  } else {
+    randomFill = this.sourceBlock_.getColourTertiary();
+  }
+
   this.randomButton_ = Blockly.utils.createSvgElement('rect', {
     'x': leftMost,
     'y': 0,
     'width': Blockly.FieldSlider.BUTTON_WIDTH,
     'height': Blockly.FieldSlider.BUTTON_HEIGHT,
-    'fill': this.sourceBlock_.getColourTertiary(),
+    'fill': randomFill,
     'rx': nodePad, 'ry': nodePad
   }, button);
 
@@ -1049,7 +1081,23 @@ Blockly.FieldSlider.prototype.setToUniform_ = function () {
   this.setValue(newArray.toString() + '|' + newStrings.join('~'));
 }
 
+/**
+ * Click listener for the random button.
+ */
 Blockly.FieldSlider.prototype.setToRandom_ = function() {
+  if (this.randomMode_) {
+    this.randomButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+    //this.randomMode_ = false;
+    this.setValue(this.sliders_.toString() + '|' + this.sliderStrings_.join('~'));
+  } else {
+    this.randomButton_.setAttribute('fill', '#FFFFFF');
+    //this.randomMode_ = true;
+    this.setValue(this.sliders_.toString() + '|' + this.sliderStrings_.join('~') + '|random');
+  }
+
+
+
+  /*
   var sumOfArray = 0.0;
   var numSliders = this.sliders_.length;
   var newValue;
@@ -1065,7 +1113,14 @@ Blockly.FieldSlider.prototype.setToRandom_ = function() {
     newArray[i] = (newArray[i] / sumOfArray) * 100.0;
   }
   this.setValue(newArray.toString() + '|' + newStrings.join('~'));
+  */
 }
+
+
+
+
+
+
 
 
 
@@ -1090,7 +1145,10 @@ Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
       this.sliderTexts_[this.visibleSliderText_].setAttribute('visibility', 'hidden');
     }
     this.visibleSliderText_ = sliderHit;   
-    this.sliderTexts_[sliderHit].setAttribute('visibility', 'visible');
+    if (!this.randomMode_) {
+      this.sliderTexts_[sliderHit].setAttribute('visibility', 'visible');
+    }
+    
   }
 }
 
@@ -1112,7 +1170,10 @@ Blockly.FieldSlider.prototype.randomMouseOver_ = function() {
   this.randomButton_.setAttribute('fill', '#FFFFFF');
 }
 Blockly.FieldSlider.prototype.randomMouseOut_ = function() {
-  this.randomButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+  if (!this.randomMode_) {
+    this.randomButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+  }
+  
 }
 
 Blockly.FieldSlider.prototype.uniformMouseOver_ = function() {
@@ -1120,6 +1181,24 @@ Blockly.FieldSlider.prototype.uniformMouseOver_ = function() {
 }
 Blockly.FieldSlider.prototype.uniformMouseOut_ = function() {
   this.uniformButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+}
+
+Blockly.FieldSlider.prototype.toggleRandomMode_ = function() {
+  if (!this.randomMode_) {
+    for (var i = 0; i < this.sliders_.length; i++) {
+      this.sliderRects_[i].setAttribute('visibility', 'hidden');
+      this.sliderThumbNodes_[i].setAttribute('visibility', 'hidden');
+    }
+    this.randomButton_.setAttribute('fill', '#FFFFFF');
+    this.randomMode_ = true;
+  } else if (this.randomMode_) {
+    for (var i = 0; i < this.sliders_.length; i++) {
+      this.sliderRects_[i].setAttribute('visibility', 'visible');
+      this.sliderThumbNodes_[i].setAttribute('visibility', 'visible');
+    }
+    this.randomButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+    this.randomMode_ = false;
+  }
 }
  
  
