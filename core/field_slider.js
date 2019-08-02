@@ -357,27 +357,35 @@ Blockly.FieldSlider.prototype.init = function() {
   
   var maxHeight = ((nodeSize + nodePad)) * 5;
   var newHeight;
-  
+   
   for (var i = 0; i < Blockly.FieldSlider.MAX_SLIDER_NUMBER; i++) {
     if (i >= this.sliders_.length) {
       newHeight = 0.0;
     } else {
       newHeight = this.sliders_[i] / 100 * maxHeight;
     }
+    var visibility;
+    if (this.randomMode_) {
+      visibility = 'hidden';
+    } else {
+      visibility = 'visible';
+    }
     var attr = {
       'x': ((nodeSize + nodePad) * i) + nodePad,
       'y': (maxHeight - newHeight),
       'width': nodeSize, 'height': newHeight,
       'rx': nodePad, 'ry': nodePad,
-      'fill': '#FFFFFF'
+      'fill': '#FFFFFF', 'visibility': visibility
     };
+    console.log('I GET HERE');
     this.sliderThumbNodes_.push(
         Blockly.utils.createSvgElement('rect', attr, this.thumbnail_)
     );
     
+    
     this.thumbnail_.style.cursor = 'default';
   }
-  
+
   if (!this.arrow_) {
     var arrowX = Blockly.FieldSlider.THUMBNAIL_SIZE +
       Blockly.BlockSvg.DROPDOWN_ARROW_PADDING * 1.5;
@@ -416,10 +424,11 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
   var sliders = newArray[0];
   var strings = newArray[1];
   var random;
-  if (sliders === 'random') {  
+  if (newArray.length === 3) {  
     if (!this.randomMode_) {    
       this.toggleRandomMode_();
     }
+    random = '|random';
   } else {
     if (this.randomMode_) {
       this.toggleRandomMode_();
@@ -437,9 +446,9 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
     }
   // Set the new value of this.sliders_ only after changing the field in the block
   // in order to have atomicity. This is the only place where this.sliders_ is mutated.
-  if (sliders !== 'random') {
-    this.sliders_ = JSON.parse("[" + sliders + "]");
-  }
+  
+  this.sliders_ = JSON.parse("[" + sliders + "]");
+  
   this.sliderStrings_ = strings.split('~');
   this.updateSlider_();
 };
@@ -451,7 +460,12 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
 Blockly.FieldSlider.prototype.getValue = function() {
   // Report the value as a string because Blockly cannot handle arrays.
   // Also safety from rep exposure.
-  return this.sliders_.toString() + '|' + this.sliderStrings_.join('~');
+  if (this.randomMode_) {
+    return this.sliders_.toString() + '|' + this.sliderStrings_.join('~') + '|random';
+  } else {
+    return this.sliders_.toString() + '|' + this.sliderStrings_.join('~');
+  }
+  
 };
 
 /**
@@ -829,7 +843,7 @@ Blockly.FieldSlider.prototype.keyboardListenerFactory = function (index) {
     }
     newArray[index] = this.textboxes_[index].value;
     if (this.randomMode_) {
-      this.setValue('random' + '|' + newArray.join('~'));
+      this.setValue(this.sliders_.toString() + '|' + newArray.join('~') + '|random');
     } else {
       this.setValue(this.sliders_.toString() + '|' + newArray.join('~'));
     }
@@ -966,7 +980,6 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
   this.sliderReleaseWrapper_ =
     Blockly.bindEvent_(document.body, 'mouseup', this, this.onMouseUp);
 
-  
   var sliderHit = parseInt(this.checkForSlider_(e));
   this.currentSlider_ = sliderHit;
   var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
@@ -981,6 +994,7 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
     return;
   }
   if (sliderHit > -1 && sliderHit < numSliders) {
+    if (this.randomMode_) {this.sliderTexts_[sliderHit].setAttribute('visibility', 'visible');}
     this.setSliderNode_(sliderHit, newHeight);
     this.sliderRects_[sliderHit].style.fill = this.sourceBlock_.getColourTertiary();//'#91dfbf';
   } else {
@@ -1094,7 +1108,7 @@ Blockly.FieldSlider.prototype.setToRandom_ = function() {
   } else {
     this.randomButton_.setAttribute('fill', '#FFFFFF');
     //this.randomMode_ = true;
-    this.setValue('random' + '|' + this.sliderStrings_.join('~'));
+    this.setValue(this.sliders_.toString() + '|' + this.sliderStrings_.join('~') + '|random');
   }
 
 
@@ -1135,10 +1149,19 @@ Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
   if (currentCursor === 'ns-resize') {
     if (dy <= Blockly.FieldSlider.BUTTON_HEIGHT || dy >= bottom) {
       this.sliderStage_.setAttribute('cursor', 'default');
+      if (this.visibleSliderText_ !== null) {
+        this.sliderTexts_[this.visibleSliderText_].setAttribute('visibility', 'hidden');
+        this.visibleSliderText_ = null;
+      }
     }
   } else if (currentCursor === 'default') {
     if (dy > Blockly.FieldSlider.BUTTON_HEIGHT && dy < bottom) {
       this.sliderStage_.setAttribute('cursor', 'ns-resize');
+      if (!this.randomMode_) {
+        this.sliderTexts_[sliderHit].setAttribute('visibility', 'visible');
+        this.visibleSliderText_ = sliderHit;
+      }
+      
     }
   }
 
@@ -1146,12 +1169,13 @@ Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
     if (this.visibleSliderText_ !== null) {
       this.sliderTexts_[this.visibleSliderText_].setAttribute('visibility', 'hidden');
     }
-    this.visibleSliderText_ = sliderHit;   
-    if (!this.randomMode_) {
-      this.sliderTexts_[sliderHit].setAttribute('visibility', 'visible');
-    }
     
+    if (!this.randomMode_ && (dy > Blockly.FieldSlider.BUTTON_HEIGHT)) {
+      this.visibleSliderText_ = sliderHit;   
+      this.sliderTexts_[sliderHit].setAttribute('visibility', 'visible');
+    } 
   }
+
 }
 
 Blockly.FieldSlider.prototype.stageMouseOut_ = function() {
@@ -1187,18 +1211,37 @@ Blockly.FieldSlider.prototype.uniformMouseOut_ = function() {
 
 Blockly.FieldSlider.prototype.toggleRandomMode_ = function() {
   if (!this.randomMode_) {
-    for (var i = 0; i < this.sliders_.length; i++) {
-      this.sliderRects_[i].setAttribute('visibility', 'hidden');
-      this.sliderThumbNodes_[i].setAttribute('visibility', 'hidden');
+    
+    for (var i = 0; i < Blockly.FieldSlider.MAX_SLIDER_NUMBER; i++) {
+      if (this.sliderStage_) {
+        this.sliderRects_[i].setAttribute('visibility', 'hidden');
+        
+      }
+      if (this.sliderThumbNodes_.length === Blockly.FieldSlider.MAX_SLIDER_NUMBER) {
+        this.sliderThumbNodes_[i].setAttribute('visibility', 'hidden');
+      }
+      
     }
-    this.randomButton_.setAttribute('fill', '#FFFFFF');
+    if (this.sliderStage_) {
+      this.randomButton_.setAttribute('fill', '#FFFFFF');
+    }
+    
     this.randomMode_ = true;
   } else if (this.randomMode_) {
-    for (var i = 0; i < this.sliders_.length; i++) {
-      this.sliderRects_[i].setAttribute('visibility', 'visible');
-      this.sliderThumbNodes_[i].setAttribute('visibility', 'visible');
+    
+    for (var i = 0; i < Blockly.FieldSlider.MAX_SLIDER_NUMBER; i++) {
+      if (this.sliderStage_) {
+        this.sliderRects_[i].setAttribute('visibility', 'visible');
+      }
+      
+      if (this.sliderThumbNodes_.length === Blockly.FieldSlider.MAX_SLIDER_NUMBER) {
+        this.sliderThumbNodes_[i].setAttribute('visibility', 'visible');
+      }
     }
-    this.randomButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+    if (this.sliderStage_) {
+      this.randomButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+    }
+    
     this.randomMode_ = false;
   }
 }
