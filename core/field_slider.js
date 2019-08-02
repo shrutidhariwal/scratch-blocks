@@ -416,11 +416,8 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
   var sliders = newArray[0];
   var strings = newArray[1];
   var random;
-  if (newArray.length === 3) {
-    random = '|random';
-    
-    if (!this.randomMode_) {
-      
+  if (sliders === 'random') {  
+    if (!this.randomMode_) {    
       this.toggleRandomMode_();
     }
   } else {
@@ -440,8 +437,9 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
     }
   // Set the new value of this.sliders_ only after changing the field in the block
   // in order to have atomicity. This is the only place where this.sliders_ is mutated.
-
-  this.sliders_ = JSON.parse("[" + sliders + "]");
+  if (sliders !== 'random') {
+    this.sliders_ = JSON.parse("[" + sliders + "]");
+  }
   this.sliderStrings_ = strings.split('~');
   this.updateSlider_();
 };
@@ -830,7 +828,11 @@ Blockly.FieldSlider.prototype.keyboardListenerFactory = function (index) {
       this.textboxes_[index].value = this.textboxes_[index].value.replace(/\||~/g, '');
     }
     newArray[index] = this.textboxes_[index].value;
-    this.setValue(this.sliders_.toString() + '|' + newArray.join('~'));
+    if (this.randomMode_) {
+      this.setValue('random' + '|' + newArray.join('~'));
+    } else {
+      this.setValue(this.sliders_.toString() + '|' + newArray.join('~'));
+    }
   };
 }
 
@@ -1092,7 +1094,7 @@ Blockly.FieldSlider.prototype.setToRandom_ = function() {
   } else {
     this.randomButton_.setAttribute('fill', '#FFFFFF');
     //this.randomMode_ = true;
-    this.setValue(this.sliders_.toString() + '|' + this.sliderStrings_.join('~') + '|random');
+    this.setValue('random' + '|' + this.sliderStrings_.join('~'));
   }
 
 
