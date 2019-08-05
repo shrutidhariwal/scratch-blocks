@@ -78,6 +78,13 @@ Blockly.FieldSlider = function(slider) {
    * @private
    */
   this.randomMode_ = false;
+
+  /**
+   * Boolean that is true when field is operating in uniform mode.
+   * @type {boolean}
+   * @private
+   */
+  this.uniformMode_ = true;
   
 
   /**
@@ -181,9 +188,14 @@ Blockly.FieldSlider = function(slider) {
   this.whiteBackground_ = null;
 
   /**
-   * Holds the Text box that says Random in the thumbnail to indicate random mode is active.
+   * Holds the text box that says random% in the thumbnail to indicate random mode is active.
    */
   this.randomThumbnailText_ = null;
+
+  /**
+   * Holds the text box that says uniform% in the thumbnail to indicate uniform mode is active.
+   */
+  this.uniformThumbnailText_ = null;
 
 };
 goog.inherits(Blockly.FieldSlider, Blockly.Field);
@@ -375,7 +387,8 @@ Blockly.FieldSlider.prototype.init = function() {
       newHeight = this.sliders_[i] / 100 * maxHeight;
     }
     var visibility;
-    if (this.randomMode_) {
+   
+    if (this.randomMode_ || this.uniformMode_) {
       visibility = 'hidden';
     } else {
       visibility = 'visible';
@@ -407,9 +420,24 @@ Blockly.FieldSlider.prototype.init = function() {
     'y': 30,
     'visibility': v,
     'fill': '#FFFFFF',
-    'font-size': 14
+    'font-size': 13
   }, this.thumbnail_);
-  this.randomThumbnailText_.innerHTML = 'Random';
+  this.randomThumbnailText_.innerHTML = 'random%';
+
+  if (this.uniformMode_) {
+    v = 'visible';
+  } else {
+    v = 'hidden';
+  }
+
+  this.uniformThumbnailText_ = Blockly.utils.createSvgElement('text',{
+    'x': nodePad,
+    'y': 30,
+    'visibility': v,
+    'fill': '#FFFFFF',
+    'font-size': 13
+  }, this.thumbnail_);
+  this.uniformThumbnailText_.innerHTML = 'equal%';
 
 
   if (!this.arrow_) {
@@ -450,17 +478,39 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
   var sliders = newArray[0];
   var strings = newArray[1];
   var random;
+  var slidersArray = JSON.parse("[" + sliders + "]");
   if (newArray.length === 3) {  
-    if (!this.randomMode_) {    
+    
+    if (!this.randomMode_) {
       this.toggleRandomMode_();
     }
+    if (this.uniformMode_) {
+      this.toggleUniformMode_();
+    }
     random = '|random';
+    
   } else {
     if (this.randomMode_) {
       this.toggleRandomMode_();
     }
     random = '';
+    if (this.allEqual_(slidersArray)) {
+      if (!this.uniformMode_) {
+        this.toggleUniformMode_();
+      }
+    /*  if (this.randomMode_) {
+        this.toggleRandomMode_();
+      }*/
+    } else {
+      if(this.uniformMode_) {
+        this.toggleUniformMode_();
+      }
+    }
   }
+
+
+
+
 
 
   if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
@@ -472,8 +522,8 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
     }
   // Set the new value of this.sliders_ only after changing the field in the block
   // in order to have atomicity. This is the only place where this.sliders_ is mutated.
-  
   this.sliders_ = JSON.parse("[" + sliders + "]");
+  
   
   this.sliderStrings_ = strings.split('~');
   this.updateSlider_();
@@ -1155,7 +1205,7 @@ Blockly.FieldSlider.prototype.checkForButton_ = function(e) {
       this.setToRandom_();
     }
   }
-}
+}       
 
 Blockly.FieldSlider.prototype.setToUniform_ = function () {
   var currentValue = this.sliders_.length;
@@ -1175,21 +1225,7 @@ Blockly.FieldSlider.prototype.setToUniform_ = function () {
 Blockly.FieldSlider.prototype.setToRandom_ = function() {
   if (this.randomMode_) {
     //this.randomButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
-    var sumOfArray = 0.0;
-    var numSliders = this.sliders_.length;
-    var newValue;
-    var newArray = [];
-    var newStrings = [];
-    for (var i = 0; i < numSliders; i++) {
-      newStrings.push(this.sliderStrings_[i]);
-      newValue = Math.random();
-      newArray.push(newValue);
-      sumOfArray += newValue;
-    }
-    for (var i = 0; i < numSliders; i++) {
-      newArray[i] = (newArray[i] / sumOfArray) * 100.0;
-      this.fillSliderNode_(newArray[i], i);
-    }
+    
 
 
     //this.setValue(newArray.toString() + '|' + newStrings.join('~'));
@@ -1199,6 +1235,21 @@ Blockly.FieldSlider.prototype.setToRandom_ = function() {
     this.randomButton_.setAttribute('fill', '#FFFFFF');
     
     this.setValue(this.sliders_.toString() + '|' + this.sliderStrings_.join('~') + '|random');
+  }
+  var sumOfArray = 0.0;
+  var numSliders = this.sliders_.length;
+  var newValue;
+  var newArray = [];
+  var newStrings = [];
+  for (var i = 0; i < numSliders; i++) {
+    newStrings.push(this.sliderStrings_[i]);
+    newValue = Math.random();
+    newArray.push(newValue);
+    sumOfArray += newValue;
+  }
+  for (var i = 0; i < numSliders; i++) {
+    newArray[i] = (newArray[i] / sumOfArray) * 100.0;
+    this.fillSliderNode_(newArray[i], i);
   }
 
 
@@ -1296,17 +1347,24 @@ Blockly.FieldSlider.prototype.uniformMouseOver_ = function() {
   this.uniformButton_.setAttribute('fill', '#FFFFFF');
 }
 Blockly.FieldSlider.prototype.uniformMouseOut_ = function() {
-  this.uniformButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+  if (!this.uniformMode_) {
+    this.uniformButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+  }
 }
 
 Blockly.FieldSlider.prototype.toggleRandomMode_ = function() {
+  
   if (!this.randomMode_) {
+    if (this.uniformThumbnailText_) {
+      this.uniformThumbnailText_.setAttribute('visibility', 'hidden');
+    }
     if (this.randomThumbnailText_) {
       this.randomThumbnailText_.setAttribute('visibility', 'visible');
     }
     for (var i = 0; i < Blockly.FieldSlider.MAX_SLIDER_NUMBER; i++) {
       
       if (this.sliderThumbNodes_.length === Blockly.FieldSlider.MAX_SLIDER_NUMBER) {
+        
         this.sliderThumbNodes_[i].setAttribute('visibility', 'hidden');
       }
       
@@ -1320,9 +1378,12 @@ Blockly.FieldSlider.prototype.toggleRandomMode_ = function() {
     if (this.randomThumbnailText_) {
       this.randomThumbnailText_.setAttribute('visibility', 'hidden');
     }
+    if (this.uniformThumbnailText_ && this.uniformMode_) {
+      this.uniformThumbnailText_.setAttribute('visibility', 'visible');
+    }
     for (var i = 0; i < Blockly.FieldSlider.MAX_SLIDER_NUMBER; i++) {
       
-      if (this.sliderThumbNodes_.length === Blockly.FieldSlider.MAX_SLIDER_NUMBER) {
+      if (this.sliderThumbNodes_.length === Blockly.FieldSlider.MAX_SLIDER_NUMBER && !this.uniformMode_) {
         this.sliderThumbNodes_[i].setAttribute('visibility', 'visible');
       }
     }
@@ -1333,6 +1394,56 @@ Blockly.FieldSlider.prototype.toggleRandomMode_ = function() {
     this.randomMode_ = false;
   }
 }
+
+Blockly.FieldSlider.prototype.toggleUniformMode_ = function () {
+  
+  if (!this.uniformMode_) {
+    if (this.sliderStage_) {
+      this.uniformButton_.setAttribute('fill', '#FFFFFF');
+    }
+    if (this.uniformThumbnailText_) {
+      this.uniformThumbnailText_.setAttribute('visibility', 'visible');
+    }
+    for (var i = 0; i < Blockly.FieldSlider.MAX_SLIDER_NUMBER; i++) {
+      
+      if (this.sliderThumbNodes_.length === Blockly.FieldSlider.MAX_SLIDER_NUMBER) {
+        this.sliderThumbNodes_[i].setAttribute('visibility', 'hidden');
+      }
+      
+    }
+    this.uniformMode_ = true;
+  } else {
+    if (this.sliderStage_) {
+      this.uniformButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
+    }
+    if (this.uniformThumbnailText_) {
+      this.uniformThumbnailText_.setAttribute('visibility', 'hidden');
+    }
+    for (var i = 0; i < Blockly.FieldSlider.MAX_SLIDER_NUMBER; i++) {
+      
+      if (this.sliderThumbNodes_.length === Blockly.FieldSlider.MAX_SLIDER_NUMBER && !this.randomMode_) {
+        this.sliderThumbNodes_[i].setAttribute('visibility', 'visible');
+      }
+      
+    }
+    this.uniformMode_ = false;
+
+  }
+}
+
+Blockly.FieldSlider.prototype.allEqual_ = function(arr) {
+ 
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[0] !== arr[i]) {
+      
+      return false;
+    }
+  }
+  
+  return true;
+} 
+
+
  
  
 /**
