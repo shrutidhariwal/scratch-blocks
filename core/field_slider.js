@@ -857,7 +857,7 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(height, index) {
     newHeight = height / 100.0 * maxHeight;
     
     this.sliderTexts_[index].setAttribute('y', (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight - 10));
-    this.sliderTexts_[index].innerHTML = Math.round(height) + '';
+    this.sliderTexts_[index].innerHTML = Math.round(height) + '%';
     var textWidth = this.sliderTexts_[index].getBoundingClientRect().width;
     this.sliderTexts_[index].setAttribute('x', x - (textWidth - Blockly.FieldSlider.SLIDER_NODE_WIDTH)/2);
 
@@ -937,7 +937,7 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
   }
   if (sliderHit > -1 && sliderHit < numSliders) {
     this.setSliderNode_(sliderHit, newHeight);
-    this.sliderRects_[sliderHit].style.fill = this.sourceBlock_.getColourTertiary();//'#91dfbf';
+    this.sliderRects_[sliderHit].style.fill = '#4FA5CF';
   } else {
     this.paintStyle_ = null;
   }
