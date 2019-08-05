@@ -828,14 +828,20 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
   var nodeHeight = (Blockly.FieldSlider.BUTTON_HEIGHT - paddingOfPattern * 2) * 5 / 6;
   var fill = '#91dfbf';
 
-  
+  var uniformFill;
+
+  if (this.uniformMode_) {
+    uniformFill = '#FFFFFF';
+  } else {
+    uniformFill = this.sourceBlock_.getColourTertiary();
+  }
 
   this.uniformButton_ = Blockly.utils.createSvgElement('rect', {
     'x': 0,
     'y': 0,
     'width': Blockly.FieldSlider.BUTTON_WIDTH,
     'height': Blockly.FieldSlider.BUTTON_HEIGHT,
-    'fill': this.sourceBlock_.getColourTertiary(),
+    'fill': uniformFill,
     'rx': nodePad, 'ry': nodePad
   }, button);
 
