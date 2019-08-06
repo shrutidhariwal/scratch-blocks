@@ -950,6 +950,16 @@ Blockly.FieldSlider.prototype.handleIncreaseNumSlidersEvent = function () {
   var currentValue = this.sliders_.length;
   if (currentValue === Blockly.FieldSlider.MAX_SLIDER_NUMBER) {return;} // Number of sliders is already at the maximum so do nothing.
   var arrayValue = 100.0 / (currentValue + 1);
+  if (this.uniformMode_) {
+    var uniformArray = [];
+    for (var i = 0; i <= currentValue; i++) {
+      uniformArray.push(arrayValue);
+    }
+    newStrings = this.sliderStrings_.slice();
+    newStrings.push(uniformArray.length);
+    this.setValue(uniformArray.toString() + '|' + newStrings.join('~'));
+    return;
+  }
   this.setSliderNode_(currentValue, arrayValue);
   
   var newArray = this.sliders_.slice();
@@ -1327,7 +1337,9 @@ Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
 
 Blockly.FieldSlider.prototype.stageMouseOut_ = function() {
   if (this.visibleSliderText_ !== null) {
+    
     this.sliderTexts_[this.visibleSliderText_].setAttribute('visibility', 'hidden');
+    
   }
   this.visibleSliderText_ = null;
 }
