@@ -332,6 +332,7 @@ Blockly.FieldSlider.prototype.init = function() {
     return;
   }
   // Create the window on the block that the user can click to show the dropdown menu.
+  
   this.fieldGroup_ = Blockly.utils.createSvgElement('g', {}, null);
   this.size_.width = Blockly.FieldSlider.THUMBNAIL_SIZE +
     Blockly.FieldSlider.ARROW_SIZE + (Blockly.BlockSvg.DROPDOWN_ARROW_PADDING * 1.5);
@@ -441,10 +442,12 @@ Blockly.FieldSlider.prototype.getValue = function() {
  */
 Blockly.FieldSlider.prototype.showEditor_ = function() {
   // If there is an existing drop-down someone else owns, hide it immediately and clear it.
+
   Blockly.DropDownDiv.hideWithoutAnimation();
   Blockly.DropDownDiv.clearContent();
   let numSliders = this.sliders_.length;
   var div = Blockly.DropDownDiv.getContentDiv();
+  
   
   var sliderSize = (Blockly.FieldSlider.SLIDER_NODE_WIDTH * numSliders) +
   (Blockly.FieldSlider.SLIDER_NODE_PAD * numSliders);
@@ -1075,6 +1078,8 @@ Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
   var dy = e.clientY - bBox.top;
   var currentCursor = this.sliderStage_.getAttribute('cursor');
   var bottom = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT;
+
+  // Change the cursor type depending on where the cursor is on the stage.
   if (currentCursor === 'ns-resize') {
     if (dy <= Blockly.FieldSlider.BUTTON_HEIGHT || dy >= bottom) {
       this.sliderStage_.setAttribute('cursor', 'default');
@@ -1084,7 +1089,8 @@ Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
       this.sliderStage_.setAttribute('cursor', 'ns-resize');
     }
   }
-
+  
+  // If the slider the mouse is currently hovering over has changed, then change the slider that is currently visible.
   if (sliderHit !== this.visibleSliderText_) {
     if (this.visibleSliderText_ !== null) {
       this.sliderTexts_[this.visibleSliderText_].setAttribute('visibility', 'hidden');
@@ -1092,6 +1098,15 @@ Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
     this.visibleSliderText_ = sliderHit;   
     this.sliderTexts_[sliderHit].setAttribute('visibility', 'visible');
   }
+  
+  // If the mouse is up in the button region, then hide the currently visible slider if there is any.
+  if (dy < Blockly.FieldSlider.BUTTON_HEIGHT) {
+    if (this.visibleSliderText_ !== null) {
+      this.sliderTexts_[this.visibleSliderText_].setAttribute('visibility', 'hidden');
+    }
+    this.visibleSliderText_ = null;
+  }
+
 }
 
 Blockly.FieldSlider.prototype.stageMouseOut_ = function() {
