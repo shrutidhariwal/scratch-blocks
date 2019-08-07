@@ -165,6 +165,35 @@ Blockly.DropDownDiv.setColour = function(backgroundColour, borderColour) {
 };
 
 /**
+ * Reposition the drop-down according to the newly provided x-coordinate.
+ * @param {number} xCoordinate The x-coordinate that the user provided.
+ */
+Blockly.DropDownDiv.setLeft = function(xCoordinate) {
+  var change = Blockly.DropDownDiv.DIV_.style.left;
+  // Find the change in x-coordinate, relative to the old value.
+  change = xCoordinate - parseFloat(change.slice(0, change.length - 2));
+  // Split the transform attribute of the dropdown arrow.
+  var transform = Blockly.DropDownDiv.arrow_.style.transform.split(/\(|,/);
+  // Next two lines are to retrieve the x-coordinate of the arrow.
+  var arrowLocation = transform[1];
+  arrowLocation = parseFloat(arrowLocation.slice(0, arrowLocation.length - 2));
+  // Bring the drop-down arrow to the new correct position by translating it to the new center of the resized div.
+  var newTranslate = 'translate(' + (arrowLocation - change) + 'px,' + transform[2] + '(' + transform[3];
+  Blockly.DropDownDiv.arrow_.style.transform = newTranslate;
+  // Move the main div to the correct position.
+  Blockly.DropDownDiv.DIV_.style.left = xCoordinate + 'px';
+};
+
+/**
+ * Return the x-coordinate of the left side of the drop-down.
+ * @returns {string} The x-coordinate.
+ */
+Blockly.DropDownDiv.getLeft = function() {
+  return Blockly.DropDownDiv.DIV_.style.left;
+};
+
+
+/**
  * Set the category for the drop-down.
  * @param {string} category The new category for the drop-down.
  */

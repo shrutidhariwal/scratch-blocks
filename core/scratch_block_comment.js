@@ -227,11 +227,13 @@ Blockly.ScratchBlockComment.prototype.createEditor_ = function() {
   textarea.className = 'scratchCommentTextarea scratchCommentText';
   textarea.setAttribute('dir', this.block_.RTL ? 'RTL' : 'LTR');
   textarea.setAttribute('maxlength', Blockly.ScratchBlockComment.COMMENT_TEXT_LIMIT);
+  textarea.setAttribute('placeholder', Blockly.Msg.WORKSPACE_COMMENT_DEFAULT_TEXT);
   body.appendChild(textarea);
   this.textarea_ = textarea;
   this.textarea_.style.margin = (Blockly.ScratchBlockComment.TEXTAREA_OFFSET) + 'px';
   this.foreignObject_.appendChild(body);
-  Blockly.bindEventWithChecks_(textarea, 'mousedown', this, this.textareaFocus_);
+  Blockly.bindEventWithChecks_(textarea, 'mousedown', this,
+      this.textareaFocus_, true, true); // noCapture and do not prevent default
   // Don't zoom with mousewheel.
   Blockly.bindEventWithChecks_(textarea, 'wheel', this, function(e) {
     e.stopPropagation();
@@ -243,9 +245,6 @@ Blockly.ScratchBlockComment.prototype.createEditor_ = function() {
       this.text_ = textarea.value;
     }
   });
-  setTimeout(function() {
-    textarea.focus();
-  }, 0);
 
   // Label for comment top bar when comment is minimized
   this.label_ = this.getLabelText();
@@ -255,6 +254,18 @@ Blockly.ScratchBlockComment.prototype.createEditor_ = function() {
     labelText: this.label_
   };
 };
+
+/**
+ * Handle text area click, make sure to stop propagation to allow default selection behavior.
+ * @param {!Event} e Mouse up event.
+ * @private
+ */
+Blockly.ScratchBlockComment.prototype.textareaFocus_ = function(e) {
+  Blockly.ScratchBlockComment.superClass_.textareaFocus_.call(this, e);
+  // Stop event from propagating to the workspace to make sure preventDefault _is not called_.
+  e.stopPropagation();
+};
+
 
 /**
  * Callback function triggered when the bubble has resized.
@@ -635,4 +646,11 @@ Blockly.ScratchBlockComment.prototype.dispose = function() {
   this.block_.comment = null;
   this.workspace.removeTopComment(this);
   Blockly.Icon.prototype.dispose.call(this);
+};
+
+/**
+ * Focus this comments textarea.
+ */
+Blockly.ScratchBlockComment.prototype.focus = function() {
+  this.textarea_.focus();
 };
