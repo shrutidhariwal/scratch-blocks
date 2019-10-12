@@ -255,7 +255,7 @@ Blockly.FieldSlider.SLIDER_STAGE_HEIGHT = 145;//140;
  * @type {number}
  * @const
  */
-Blockly.FieldSlider.MAX_SLIDER_NUMBER = 10;
+Blockly.FieldSlider.MAX_SLIDER_NUMBER = 100;
 
 /**
  * Width of the buttons in the menu.
