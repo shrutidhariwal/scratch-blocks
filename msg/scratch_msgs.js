@@ -193,6 +193,7 @@ Blockly.ScratchMsgs.locales["ab"] =
     "SENSING_ASK_TEXT": "Иухьӡуи уара?",
     "SENSING_ANSWER": "аҭак",
     "SENSING_KEYPRESSED": "аклавиша %1  иақәыӷәӷәома? ",
+    "SENSING_KEYPRESSEDNUMBER": "",
     "SENSING_MOUSEDOWN": "аҳәынаԥ иақәыӷәӷәома?",
     "SENSING_MOUSEX": "аҳәынаԥ x ала",
     "SENSING_MOUSEY": "аҳәынаԥ y ала",

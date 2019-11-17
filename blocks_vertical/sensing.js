@@ -212,6 +212,20 @@ Blockly.Blocks['sensing_keypressed'] = {
   }
 };
 
+Blockly.Blocks['sensing_keypressednumber'] = {
+  /**
+   * Block to Report corrsponding number of the last key pressed.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_KEYPRESSEDNUMBER,
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_number"]
+    });
+  }
+};
+
 Blockly.Blocks['sensing_keyoptions'] = {
   /**
    * Options for Keys
