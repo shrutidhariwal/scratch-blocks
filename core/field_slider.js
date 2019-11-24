@@ -550,8 +550,9 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
 
 
     if (i >= this.sliderStrings_.length) {
-      textbox.defaultValue = i + 1;
+      textbox.defaultValue = '';
     } else {
+      textbox.setAttribute("title", this.sliderStrings_[i]);
       textbox.defaultValue = this.sliderStrings_[i];
     }
     textbox.style.borderRadius = '5px';
