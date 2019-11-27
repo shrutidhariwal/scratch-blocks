@@ -191,6 +191,7 @@ Blockly.FieldSlider.fromJson = function(options) {
  * @type {number}
  * @const
  */
+//todo: This should increase with more sides
 Blockly.FieldSlider.THUMBNAIL_SIZE = 26;
 
 /**
@@ -219,6 +220,7 @@ Blockly.FieldSlider.ARROW_SIZE = 12;
  * @type {number}
  * @const
  */
+ //todo: This should reduce with more sides
 Blockly.FieldSlider.SLIDER_NODE_WIDTH = 18;
 
 /**
@@ -255,7 +257,7 @@ Blockly.FieldSlider.SLIDER_STAGE_HEIGHT = 145;//140;
  * @type {number}
  * @const
  */
-Blockly.FieldSlider.MAX_SLIDER_NUMBER = 100;
+Blockly.FieldSlider.MAX_SLIDER_NUMBER = 30;
 
 /**
  * Width of the buttons in the menu.

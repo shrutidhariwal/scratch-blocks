@@ -45,7 +45,7 @@ Blockly.Blocks['slider'] = {
           "name": "SLIDER"
         }
       ],
-      "outputShape": Blockly.OUTPUT_SHAPE_ROUND,
+      "outputShape": Blockly.OUTPUT_SHAPE_SQUARE,
       "output": "Number",
       "extensions": ["colours_pen"]
     });
