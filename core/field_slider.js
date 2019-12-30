@@ -172,6 +172,10 @@ Blockly.FieldSlider = function(slider) {
    */
   this.whiteBackground_ = null;
 
+  this.diceType = '';
+
+  this.svg = [];
+
 };
 goog.inherits(Blockly.FieldSlider, Blockly.Field);
 
@@ -410,20 +414,35 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
   var newArray = sliderValue.split('|');
   var sliders = newArray[0];
   var strings = newArray[1];
-
+  var diceType = newArray[2];
+  if (diceType == 'costume') {
+    var svg = newArray[3];
+  }
 
   if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
-    var oldValue = this.sliders_.toString() + '|' + this.sliderStrings_.toString();
-    Blockly.Events.fire(new Blockly.Events.Change( // Change the value of the block in Blockly.
+    if(diceType === 'costume'){
+      var oldValue = this.sliders_.toString() + '|' + this.sliderStrings_.toString() + '|' + diceType + '|' + this.svg.join('~');
+      Blockly.Events.fire(new Blockly.Events.Change( 
+        this.sourceBlock_, 'field', this.name, oldValue, sliders + '|' + strings + '|' + diceType + '|' + svg));
+    }
+    else {
+      var oldValue = this.sliders_.toString() + '|' + this.sliderStrings_.toString() + '|' + diceType;
+      Blockly.Events.fire(new Blockly.Events.Change( // Change the value of the block in Blockly.
         // The fourth argument to this function is the old value of the field,
         // The fifth argument is the new value.
-        this.sourceBlock_, 'field', this.name, oldValue, sliders + '|' + strings));
+        this.sourceBlock_, 'field', this.name, oldValue, sliders + '|' + strings + '|' + diceType));
     }
+  }
+
   // Set the new value of this.sliders_ only after changing the field in the block
   // in order to have atomicity. This is the only place where this.sliders_ is mutated.
 
   this.sliders_ = JSON.parse("[" + sliders + "]");
   this.sliderStrings_ = strings.split('~');
+  this.diceType = diceType;
+  if (diceType === 'costume') {
+    this.svg = svg.split('~')
+  }
   this.updateSlider_();
 };
 
@@ -434,7 +453,10 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
 Blockly.FieldSlider.prototype.getValue = function() {
   // Report the value as a string because Blockly cannot handle arrays.
   // Also safety from rep exposure.
-  return this.sliders_.toString() + '|' + this.sliderStrings_.join('~');
+  if(this.diceType === "costume"){
+    return this.sliders_.toString() + '|' + this.sliderStrings_.join('~') + '|' + this.diceType + '|' + this.svg.join('~');
+  }
+  return this.sliders_.toString() + '|' + this.sliderStrings_.join('~') + '|' + this.diceType;
 };
 
 /**
@@ -472,7 +494,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'xmlns:html': 'http://www.w3.org/1999/xhtml',
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
     'version': '1.1',
-    'height': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.BOTTOM_MARGIN) + 'px',
+    'height': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.BOTTOM_MARGIN + Blockly.FieldSlider.INPUT_BOX_WIDTH + Blockly.FieldSlider.WASTEBIN_MARGIN) + 'px',
     'width': sliderSize + 'px',
     'cursor': 'ns-resize'
   }, div);
@@ -511,7 +533,30 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   for (var i = 0; i < Blockly.FieldSlider.MAX_SLIDER_NUMBER; i++) {
     var x = (Blockly.FieldSlider.SLIDER_NODE_WIDTH * i) +
       (Blockly.FieldSlider.SLIDER_NODE_PAD * (i + 0.5));
-
+    
+    if(this.diceType === 'costume'){
+      Blockly.utils.createSvgElement('rect', {
+        'x': x + (Blockly.FieldSlider.SLIDER_NODE_WIDTH - Blockly.FieldSlider.INPUT_BOX_WIDTH) / 2, 
+        'y': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 2,
+        'width': Blockly.FieldSlider.INPUT_BOX_WIDTH + 'px', 
+        'height': Blockly.FieldSlider.INPUT_BOX_WIDTH + 'px',
+        'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
+        'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
+        'fill': '#FFFFFF'
+      }, this.sliderStage_);
+      var svgimg = Blockly.utils.createSvgElement('image',
+        {
+          'width': Blockly.FieldSlider.INPUT_BOX_WIDTH - 2,
+          'height': Blockly.FieldSlider.INPUT_BOX_WIDTH -2,
+          'x': x + (Blockly.FieldSlider.SLIDER_NODE_WIDTH - Blockly.FieldSlider.INPUT_BOX_WIDTH) / 2 + 1,
+          'y': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 2 + 1
+        }, this.sliderStage_);
+      svgimg.setAttributeNS(
+        'http://www.w3.org/1999/xlink',
+        'xlink:href',
+        "data:image/svg+xml;base64," + this.svg[i]
+      );
+    }
 
     // Import the waste-bin svg.
     var wasteBin = Blockly.utils.createSvgElement('image',
@@ -519,7 +564,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
         'width': Blockly.FieldSlider.WASTEBIN_SIZE,
         'height': Blockly.FieldSlider.WASTEBIN_SIZE,
         'x': x + (Blockly.FieldSlider.SLIDER_NODE_WIDTH - Blockly.FieldSlider.WASTEBIN_SIZE) / 2,
-        'y': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 2
+        'y': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 3 + Blockly.FieldSlider.INPUT_BOX_WIDTH
       }, this.sliderStage_);
     wasteBin.setAttributeNS(
       'http://www.w3.org/1999/xlink',
@@ -528,8 +573,8 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     );
     wasteBin.addEventListener('click', this.removeSliderListener_.bind(this), false);
 
-
     
+
 
     
     // Add the svg containers for the textboxes.
@@ -921,7 +966,12 @@ Blockly.FieldSlider.prototype.setSliderNode_ = function(sliderIndex, newHeight) 
     }
   }
   slidersCopy[sliderIndex] = newHeight;
-  this.setValue(slidersCopy.toString() + '|' + this.sliderStrings_.join('~'));
+  if(this.diceType === 'costume'){
+    this.setValue(slidersCopy.toString() + '|' + this.sliderStrings_.join('~') + '|' + this.diceType + '|' + this.svg.join('~'));
+  }
+  else{
+    this.setValue(slidersCopy.toString() + '|' + this.sliderStrings_.join('~') + '|' + this.diceType);
+  }
 };
 
 /**
