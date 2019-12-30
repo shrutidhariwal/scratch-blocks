@@ -78,7 +78,7 @@ Blockly.FieldMarkov = function(markov) {
    * @type {String}
    * @private
    */
-  this.currentView_ = '#basic';
+  this.currentView_ = '~';
 
   /**
    * SVGElement for slider group in editor.
@@ -489,31 +489,28 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
 
   //Add markov view buttons
   for (var i = -1; i < this.sliderStrings_.length; i++) {
-    var markovViewBoxContainer = Blockly.utils.createSvgElement('foreignObject', {
+    var color = (i == this.sliderStrings_.indexOf(this.currentView_)) ? '#ffffff': this.sourceBlock_.getColourTertiary();
+    var markovViewBoxContainer = Blockly.utils.createSvgElement('rect', {
       'height': Blockly.FieldMarkov.INPUT_BOX_HEIGHT + 2,
       'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH,
+      'rx': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
+      'ry': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
+      'fill': color,
+      'id': i,
       'x': 0,
       'y': Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN / 2 + (i + 1) * (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD),
     }, markovViewDiv);
-
-    var textbox = document.createElement('input');
-    textbox.style.width = Blockly.FieldMarkov.INPUT_BOX_WIDTH + 'px';
-    textbox.style.height = Blockly.FieldMarkov.INPUT_BOX_HEIGHT + 'px';
-    textbox.style.border = 'none';
-    textbox.style.outline = 'none';
-    textbox.readonly = 'readonly';
-    textbox.id = i;
-    if (i == -1) {
-      textbox.defaultValue = '~';
-    } else {
-      textbox.setAttribute("title", this.sliderStrings_[i]);
-      textbox.defaultValue = this.sliderStrings_[i];
-    }
-    textbox.style.cursor = 'default';
-    textbox.style.borderRadius = '5px';
-    textbox.style.textAlign = 'center';
-    textbox.addEventListener('click', this.changeViewListener_.bind(this), false);
-    markovViewBoxContainer.appendChild(textbox);
+    
+    var addButtonText = Blockly.utils.createSvgElement('text', {
+      // 'x': Blockly.FieldMarkov.INPUT_BOX_HEIGHT / 2 + 0.5,
+      'x': 5,
+      'y': 17 + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN / 2 + (i + 1) * (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD),
+      'fill': '#91dfbf',
+      'id': i
+    }, markovViewDiv);
+    addButtonText.innerHTML = (i == -1) ? '~' : this.sliderStrings_[i];
+    addButtonText.addEventListener('click', this.changeViewListener_.bind(this), false);
+    markovViewBoxContainer.addEventListener('click', this.changeViewListener_.bind(this), false);
   }
 
   Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BUTTON_HEIGHT + (Blockly.FieldMarkov.WASTEBIN_MARGIN / 2);
@@ -556,21 +553,6 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
     var x = (Blockly.FieldMarkov.SLIDER_NODE_WIDTH * i) +
       (Blockly.FieldMarkov.SLIDER_NODE_PAD * (i + 0.5));
 
-    // Import the waste-bin svg.
-    var wasteBin = Blockly.utils.createSvgElement('image',
-        {
-          'width': Blockly.FieldMarkov.WASTEBIN_SIZE,
-          'height': Blockly.FieldMarkov.WASTEBIN_SIZE,
-          'x': x + (Blockly.FieldMarkov.SLIDER_NODE_WIDTH - Blockly.FieldMarkov.WASTEBIN_SIZE) / 2,
-          'y': (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN * 2
-        }, this.sliderStage_);
-    wasteBin.setAttributeNS(
-        'http://www.w3.org/1999/xlink',
-        'xlink:href',
-        Blockly.mainWorkspace.options.pathToMedia + Blockly.FieldMarkov.WASTEBIN_SVG_PATH
-    );
-    wasteBin.addEventListener('click', this.removeSliderListener_.bind(this), false);
-
     // Add the svg containers for the textboxes.
     var textBoxContainer = Blockly.utils.createSvgElement('foreignObject', {
       'height': Blockly.FieldMarkov.INPUT_BOX_HEIGHT + 2,
@@ -585,6 +567,7 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
     textbox.style.height = Blockly.FieldMarkov.INPUT_BOX_HEIGHT + 'px';
     textbox.style.border = 'none';
     textbox.style.outline = 'none';
+    textbox.readOnly = true;
 
     if (i >= this.sliderStrings_.length) {
       textbox.defaultValue = '';
@@ -627,8 +610,7 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
     this.sliderTexts_.push(newSliderText);
   }
 
-  // New Slider Button
-  var dropDownButtonDiv2 = Blockly.utils.createSvgElement('svg', {
+  Blockly.utils.createSvgElement('svg', {
     'xmlns': 'http://www.w3.org/2000/svg',
     'xmlns:html': 'http://www.w3.org/1999/xhtml',
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
@@ -636,28 +618,6 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
     'height': Blockly.FieldMarkov.BOTTOM_MARGIN - Blockly.FieldMarkov.WASTEBIN_MARGIN - 1 + 'px',
     'width': (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN) + 'px'
   }, div);
-
-  var button = Blockly.utils.createSvgElement('circle', {
-    'cx': Blockly.FieldMarkov.INPUT_BOX_HEIGHT / 2 + Blockly.FieldMarkov.WASTEBIN_MARGIN,
-    'cy': Blockly.FieldMarkov.INPUT_BOX_HEIGHT / 2,
-    'r': Blockly.FieldMarkov.INPUT_BOX_HEIGHT / 2,
-    'fill': this.sourceBlock_.getColourTertiary()
-  }, dropDownButtonDiv2);
-
-  var addButtonText = Blockly.utils.createSvgElement('text', {
-    'x': Blockly.FieldMarkov.INPUT_BOX_HEIGHT / 2 + 0.5,
-    'y': Blockly.FieldMarkov.INPUT_BOX_HEIGHT / 2 + 4,
-    'fill': '#91dfbf'
-  }, dropDownButtonDiv2);
-  addButtonText.innerHTML = '+';
-
-  button.addEventListener('click', this.handleIncreaseNumSlidersEvent.bind(this), false);
-  button.addEventListener('mouseover', this.buttonMouseOver_.bind(this), false);
-  button.addEventListener('mouseout', this.buttonMouseOut_.bind(this), false);
-  addButtonText.addEventListener('mouseover', this.buttonMouseOver_.bind(this), false);
-  addButtonText.addEventListener('mouseout', this.buttonMouseOut_.bind(this), false);
-  addButtonText.addEventListener('click', this.handleIncreaseNumSlidersEvent.bind(this), false);
-  this.addSliderButton_ = button;
 
   Blockly.DropDownDiv.setColour(this.sourceBlock_.getColour(),
       this.sourceBlock_.getColourTertiary());
@@ -762,25 +722,6 @@ Blockly.FieldMarkov.prototype.createUniformRandomButtons = function(button) {
   node.addEventListener('mouseout', this.randomMouseOut_.bind(this), false);
 };
 
-
-/**
- * Event listener for the plus button in the dropdown menu.
- */
-Blockly.FieldMarkov.prototype.handleIncreaseNumSlidersEvent = function() {
-  var currentValue = this.sliders_.length;
-  if (currentValue === Blockly.FieldMarkov.MAX_SLIDER_NUMBER) { return; } // Number of sliders is already at the maximum so do nothing.
-  var arrayValue = 100.0 / (currentValue + 1);
-  this.setSliderNode_(currentValue, arrayValue);
-
-  var newArray = this.sliders_.slice();
-  var newStrings = this.sliderStrings_.slice();
-
-  newArray[newArray.length - 1] = arrayValue;
-  newStrings[newArray.length - 1] = newArray.length;
-
-  this.setValue(newArray.toString() + '|' + newStrings.join('~'));
-
-};
 
 Blockly.FieldMarkov.prototype.keyboardListenerFactory = function(index) {
   return function() {
@@ -988,36 +929,11 @@ Blockly.FieldMarkov.prototype.onMouseMove = function(e) {
   this.setSliderNode_(sliderHit, newHeight);
 };
 
-
-/**
- * This listener attached to wastebin svgs and removes corresponding slider when called.
- */
-Blockly.FieldMarkov.prototype.removeSliderListener_ = function(e) {
-  var sliderHit = parseInt(this.checkForSlider_(e));
-  var currentValue = this.sliders_.length;
-  if (currentValue === 2) { return; }
-  document.getElementById(sliderHit).setAttribute('style', 'display:none;');
-  // this.setSliderNode_(sliderHit, 0);
-  // var newArray = [];
-  // var newStrings = [];
-  // for (var i = 0; i < currentValue; i++){
-  //   if (i !== sliderHit) {
-  //     newArray.push(this.sliders_[i]);
-  //     newStrings.push(this.sliderStrings_[i]);
-  //   }
-  // }
-  this.currentView_ = this.sliderStrings_[sliderHit];
-  this.setValue(this.markovDistribution_);
-};
-
 Blockly.FieldMarkov.prototype.changeViewListener_ = function(e) {
-  var sliderHit = e.target.id;
-  if (sliderHit > -1) {
-    this.currentView_ = this.sliderStrings_[sliderHit];
-  }
-  else {
-    this.currentView_ = '#basic';
-  }
+  document.getElementById(this.sliderStrings_.indexOf(this.currentView_)).setAttribute('fill', this.sourceBlock_.getColourTertiary());
+  var id = e.target.id;
+  this.currentView_ = (id > -1) ? this.sliderStrings_[id] : '~';
+  document.getElementById(this.sliderStrings_.indexOf(this.currentView_)).setAttribute('fill', '#FFFFFF');
   this.setValue(this.markovDistribution_);
 };
 

@@ -935,13 +935,13 @@ Blockly.FieldSlider.prototype.keyboardListenerFactory = function (index) {
     newArray[index] = this.textboxes_[index].value;
     // this.setValue(this.sliders_.toString() + '|' + newArray.join('~'));
     if(this.diceType_ === 'costume'){
-      this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.costumeData_.join('~'));
+      this.setValue(this.sliders_.toString() + '|' + newArray.join('~') + '|' + this.diceType_ + '|' + this.costumeData_.join('~'));
     }
     else if(this.diceType_ === 'sound') {
-      this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.soundData_.join('~'));
+      this.setValue(this.sliders_.toString() + '|' + newArray.join('~') + '|' + this.diceType_ + '|' + this.soundData_.join('~'));
     }
     else{
-      this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_);
+      this.setValue(this.sliders_.toString() + '|' + newArray.join('~') + '|' + this.diceType_);
     }
   };
 }
