@@ -67,11 +67,18 @@ Blockly.FieldMarkov = function(markov) {
   this.sliders_ = [];
 
   /**
-   * String for current markov distribution.
+   * Current markov string value.
    * @type {String}
    * @private
    */
-  this.markovDistribution_ = '';
+  this.markovValue_ = '';
+
+  /**
+   * Type of dice
+   * @type {String}
+   * @private
+   */
+  this.diceType_ = '';
 
   /**
    * Currently selected markov view. Defaults to original distribution view.
@@ -419,28 +426,27 @@ Blockly.FieldMarkov.prototype.setValue = function(markovValue) {
   if (!markovValue) {
     return;
   }
-
-  var oldDist = this.markovDistribution_;
-  this.markovDistribution_ = markovValue;
-
-  var markovStrings = this.markovDistribution_.split('||');
+  var splitted = markovValue.split('|||');
+  var markovStrings = splitted[0].split('||');
   for (var k = 0; k < markovStrings.length; k++) {
     var newArray = markovStrings[k].split('|');
-    if (newArray[2] == this.currentView_) {
+    if (newArray[1] == this.currentView_) {
       var sliders = newArray[0];
-      var strings = newArray[1];
     }
   }
+  var strings = splitted[1];
+  var diceType = splitted[2];
 
   if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
     Blockly.Events.fire(new Blockly.Events.Change(
-        this.sourceBlock_, 'field', this.name, oldDist, this.markovDistribution_));
+        this.sourceBlock_, 'field', this.name, this.markovValue_, markovValue));
   }
   // Set the new value of this.sliders_ only after changing the field in the block
   // in order to have atomicity. This is the only place where this.sliders_ is mutated.
-
+  this.markovValue_ = markovValue;
   this.sliders_ = JSON.parse("[" + sliders + "]");
   this.sliderStrings_ = strings.split('~');
+  this.diceType_ = diceType;
   this.updateSlider_();
 };
 
@@ -449,7 +455,7 @@ Blockly.FieldMarkov.prototype.setValue = function(markovValue) {
  * @return {String} Current markov distribution.
  */
 Blockly.FieldMarkov.prototype.getValue = function() {
-  return this.markovDistribution_;
+  return this.markovValue_;
 };
 
 /**
@@ -579,8 +585,6 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
     textbox.style.textAlign = 'center';
     textBoxContainer.appendChild(textbox);
     this.textboxes_.push(textbox);
-    var textboxFunction = this.keyboardListenerFactory(i);
-    textbox.addEventListener('input', textboxFunction.bind(this), false);
 
     // Add the slider rectangles.
     var y = 45;
@@ -722,19 +726,6 @@ Blockly.FieldMarkov.prototype.createUniformRandomButtons = function(button) {
   node.addEventListener('mouseout', this.randomMouseOut_.bind(this), false);
 };
 
-
-Blockly.FieldMarkov.prototype.keyboardListenerFactory = function(index) {
-  return function() {
-    var newArray = this.sliderStrings_.slice();
-    // Disallow the vertical bar and the tilde from being entered into the input box, because doing so would break the rep.
-    if (this.textboxes_[index].value.match(/\||~/g)) {
-      this.textboxes_[index].value = this.textboxes_[index].value.replace(/\||~/g, '');
-    }
-    newArray[index] = this.textboxes_[index].value;
-    this.setValue(this.sliders_.toString() + '|' + newArray.join('~'));
-  };
-};
-
 /**
  * Redraw the slider with the current value.
  * @private
@@ -846,12 +837,12 @@ Blockly.FieldMarkov.prototype.setSliderNode_ = function(sliderIndex, newHeight) 
   slidersCopy[sliderIndex] = newHeight;
 
   var newDist = '';
-  var markovStrings = this.markovDistribution_.split('||');
+  var markovStrings = this.markovValue_.split('|||')[0].split('||');
   for (var k = 0; k < markovStrings.length; k++) {
     var newArray = markovStrings[k].split('|');
-    if (newArray[2] == this.currentView_) {
+    if (newArray[1] == this.currentView_) {
       var sliders = slidersCopy.toString();
-      newDist += sliders + '|' + newArray[1] + '|' + newArray[2];
+      newDist += sliders + '|' + newArray[1];
     }
     else {
       newDist += markovStrings[k];
@@ -860,8 +851,8 @@ Blockly.FieldMarkov.prototype.setSliderNode_ = function(sliderIndex, newHeight) 
       newDist += '||';
     }
   }
-
-  this.setValue(newDist);
+  var newValue = [newDist, this.sliderStrings_.join('~'), this.diceType_].join('|||');
+  this.setValue(newValue);
 };
 
 /**
@@ -934,7 +925,7 @@ Blockly.FieldMarkov.prototype.changeViewListener_ = function(e) {
   var id = e.target.id;
   this.currentView_ = (id > -1) ? this.sliderStrings_[id] : '~';
   document.getElementById(this.sliderStrings_.indexOf(this.currentView_)).setAttribute('fill', '#FFFFFF');
-  this.setValue(this.markovDistribution_);
+  this.setValue(this.markovValue_);
 };
 
 /**
@@ -980,11 +971,11 @@ Blockly.FieldMarkov.prototype.setToUniform_ = function() {
   }
 
   var newDist = '';
-  var markovStrings = this.markovDistribution_.split('||');
+  var markovStrings = this.markovValue_.split('|||')[0].split('||');
   for (var k = 0; k < markovStrings.length; k++) {
     var newA = markovStrings[k].split('|');
-    if (newA[2] == this.currentView_) {
-      newDist += newArray.toString() + '|' + newStrings.join('~') + '|' + newA[2];
+    if (newA[1] == this.currentView_) {
+      newDist += newArray.toString() + '|' + newA[1];
     }
     else {
       newDist += markovStrings[k];
@@ -994,7 +985,8 @@ Blockly.FieldMarkov.prototype.setToUniform_ = function() {
     }
   }
 
-  this.setValue(newDist);
+  var newValue = [newDist, this.sliderStrings_.join('~'), this.diceType_].join('|||');
+  this.setValue(newValue);
 };
 
 Blockly.FieldMarkov.prototype.setToRandom_ = function() {
@@ -1013,11 +1005,11 @@ Blockly.FieldMarkov.prototype.setToRandom_ = function() {
     newArray[i] = (newArray[i] / sumOfArray) * 100.0;
   }
   var newDist = '';
-  var markovStrings = this.markovDistribution_.split('||');
+  var markovStrings = this.markovValue_.split('|||')[0].split('||');
   for (var k = 0; k < markovStrings.length; k++) {
     var newA = markovStrings[k].split('|');
-    if (newA[2] == this.currentView_) {
-      newDist += newArray.toString() + '|' + newStrings.join('~') + '|' + newA[2];
+    if (newA[1] == this.currentView_) {
+      newDist += newArray.toString() + '|' + newA[1];
     }
     else {
       newDist += markovStrings[k];
@@ -1027,7 +1019,8 @@ Blockly.FieldMarkov.prototype.setToRandom_ = function() {
     }
   }
 
-  this.setValue(newDist);
+  var newValue = [newDist, this.sliderStrings_.join('~'), this.diceType_].join('|||')
+  this.setValue(newValue);
 };
 
 
