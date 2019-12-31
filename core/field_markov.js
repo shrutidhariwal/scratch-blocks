@@ -16,6 +16,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ * 
+ * CREDIT:
+ * play-button.svg icon made by Freepik from www.flaticon.com
+ * 
  */
 /**
  * @fileoverview n-slider input field.
@@ -79,6 +83,20 @@ Blockly.FieldMarkov = function(markov) {
    * @private
    */
   this.diceType_ = '';
+
+  /**
+   * Array of costumes' image data
+   * @type {Array}
+   * @private
+   */
+  this.costumeData_ = [];
+
+  /**
+   * Array of sounds' audio data
+   * @type {Array}
+   * @private
+   */
+  this.soundData_ = [];
 
   /**
    * Currently selected markov view. Defaults to original distribution view.
@@ -330,6 +348,13 @@ Blockly.FieldMarkov.INPUT_BOX_WIDTH = 30;
 Blockly.FieldMarkov.WASTEBIN_SVG_PATH = 'icons/waste-bin.svg';
 
 /**
+ * Path to the play button icon.
+ * @type {string}
+ * @const
+ */
+Blockly.FieldMarkov.PLAY_BUTTON_SVG_PATH = 'icons/play-button.svg';
+
+/**
  * Size of the waste bin icon.
  * @type {number}
  * @const
@@ -447,6 +472,14 @@ Blockly.FieldMarkov.prototype.setValue = function(markovValue) {
   this.sliders_ = JSON.parse("[" + sliders + "]");
   this.sliderStrings_ = strings.split('~');
   this.diceType_ = diceType;
+  switch(this.diceType_) {
+    case 'costume':
+      this.costumeData_ = splitted[3].split('~');
+      break;
+    case 'sound':
+      this.soundData_ = splitted[3].split('~');
+      break;
+  }
   this.updateSlider_();
 };
 
@@ -484,12 +517,16 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
   }, div);
 
   //Div for markov distribution buttons.
+  var height = ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BOTTOM_MARGIN + 20);
+  if(this.diceType_ === 'costume' || this.diceType_ === 'sound'){
+    height += Blockly.FieldMarkov.INPUT_BOX_WIDTH;
+  }
   var markovViewDiv = Blockly.utils.createSvgElement('svg', {
     'xmlns': 'http://www.w3.org/2000/svg',
     'xmlns:html': 'http://www.w3.org/1999/xhtml',
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
     'version': '1.1',
-    'height': ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BOTTOM_MARGIN + 20) + 'px',
+    'height': height + 'px',
     'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH + 10
   }, div);
 
@@ -521,12 +558,16 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
 
   Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BUTTON_HEIGHT + (Blockly.FieldMarkov.WASTEBIN_MARGIN / 2);
 
+  var height = ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BOTTOM_MARGIN + Blockly.FieldMarkov.BUTTON_HEIGHT);
+  if (this.diceType_ === 'costume' || this.diceType_ === 'sound'){
+    height += Blockly.FieldMarkov.INPUT_BOX_WIDTH;
+  }
   this.sliderStage_ = Blockly.utils.createSvgElement('svg', {
     'xmlns': 'http://www.w3.org/2000/svg',
     'xmlns:html': 'http://www.w3.org/1999/xhtml',
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
     'version': '1.1',
-    'height': ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BOTTOM_MARGIN + Blockly.FieldMarkov.BUTTON_HEIGHT) + 'px',
+    'height': height,
     'width': sliderSize + 'px',
     'cursor': 'ns-resize'
   }, div);
@@ -558,6 +599,49 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
   for (var i = 0; i < Blockly.FieldMarkov.MAX_SLIDER_NUMBER; i++) {
     var x = (Blockly.FieldMarkov.SLIDER_NODE_WIDTH * i) +
       (Blockly.FieldMarkov.SLIDER_NODE_PAD * (i + 0.5));
+
+    
+      if(this.diceType_ === 'costume'){
+        Blockly.utils.createSvgElement('rect', {
+          'x': x + (Blockly.FieldMarkov.SLIDER_NODE_WIDTH - Blockly.FieldMarkov.INPUT_BOX_WIDTH) / 2, 
+          'y': Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN * 2,
+          'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH + 'px', 
+          'height': Blockly.FieldMarkov.INPUT_BOX_WIDTH + 'px',
+          'rx': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
+          'ry': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
+          'fill': '#FFFFFF'
+        }, this.sliderStage_);
+        var img = Blockly.utils.createSvgElement('image',
+          {
+            'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH - 2,
+            'height': Blockly.FieldMarkov.INPUT_BOX_WIDTH -2,
+            'x': x + (Blockly.FieldMarkov.SLIDER_NODE_WIDTH - Blockly.FieldMarkov.INPUT_BOX_WIDTH) / 2 + 1,
+            'y': Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN * 2 + 1
+          }, this.sliderStage_);
+        img.setAttributeNS(
+          'http://www.w3.org/1999/xlink',
+          'xlink:href',
+          "data:image/svg+xml;base64," + this.costumeData_[i]
+        );
+      }
+  
+      if (this.diceType_ === 'sound') {
+        var playButton = Blockly.utils.createSvgElement('image',
+          {
+            'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH - 2,
+            'height': Blockly.FieldMarkov.INPUT_BOX_WIDTH - 2,
+            'x': x + (Blockly.FieldMarkov.SLIDER_NODE_WIDTH - Blockly.FieldMarkov.INPUT_BOX_WIDTH) / 2 + 1,
+            'y': Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN * 2 + 1,
+            'id': i
+          }, this.sliderStage_);
+        playButton.setAttributeNS(
+          'http://www.w3.org/1999/xlink',
+          'xlink:href',
+          Blockly.mainWorkspace.options.pathToMedia + Blockly.FieldMarkov.PLAY_BUTTON_SVG_PATH
+        );
+        playButton.addEventListener('click', this.playButtonListener_.bind(this), false);
+      }
+
 
     // Add the svg containers for the textboxes.
     var textBoxContainer = Blockly.utils.createSvgElement('foreignObject', {
@@ -851,8 +935,16 @@ Blockly.FieldMarkov.prototype.setSliderNode_ = function(sliderIndex, newHeight) 
       newDist += '||';
     }
   }
-  var newValue = [newDist, this.sliderStrings_.join('~'), this.diceType_].join('|||');
-  this.setValue(newValue);
+  var newValue = [newDist, this.sliderStrings_.join('~'), this.diceType_];
+  switch(this.diceType_){
+    case 'costume':
+      newValue.push(this.costumeData_.join('~'));
+      break;
+    case 'sound':
+      newValue.push(this.soundData_.join('~'));
+      break;
+  }
+  this.setValue(newValue.join('|||'));
 };
 
 /**
@@ -928,6 +1020,12 @@ Blockly.FieldMarkov.prototype.changeViewListener_ = function(e) {
   this.setValue(this.markovValue_);
 };
 
+Blockly.FieldMarkov.prototype.playButtonListener_ = function(e) {
+  var id = e.target.id;
+  var sound = new Audio("data:audio/wav;base64," + this.soundData_[id]);
+  sound.play();
+}
+
 /**
  * Check if mouse coordinates collide with a slider node.
  * @param {!Event} e Mouse move event.
@@ -985,8 +1083,16 @@ Blockly.FieldMarkov.prototype.setToUniform_ = function() {
     }
   }
 
-  var newValue = [newDist, this.sliderStrings_.join('~'), this.diceType_].join('|||');
-  this.setValue(newValue);
+  var newValue = [newDist, this.sliderStrings_.join('~'), this.diceType_];
+  switch(this.diceType_){
+    case 'costume':
+      newValue.push(this.costumeData_.join('~'));
+      break;
+    case 'sound':
+      newValue.push(this.soundData_.join('~'));
+      break;
+  }
+  this.setValue(newValue.join('|||'));
 };
 
 Blockly.FieldMarkov.prototype.setToRandom_ = function() {
@@ -1019,8 +1125,16 @@ Blockly.FieldMarkov.prototype.setToRandom_ = function() {
     }
   }
 
-  var newValue = [newDist, this.sliderStrings_.join('~'), this.diceType_].join('|||')
-  this.setValue(newValue);
+  var newValue = [newDist, this.sliderStrings_.join('~'), this.diceType_];
+  switch(this.diceType_){
+    case 'costume':
+      newValue.push(this.costumeData_.join('~'));
+      break;
+    case 'sound':
+      newValue.push(this.soundData_.join('~'));
+      break;
+  }
+  this.setValue(newValue.join('|||'));
 };
 
 
