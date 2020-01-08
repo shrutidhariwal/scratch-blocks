@@ -544,15 +544,25 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
       'y': Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN / 2 + (i + 1) * (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD),
     }, markovViewDiv);
     
-    var addButtonText = Blockly.utils.createSvgElement('text', {
+    var addButtonText = Blockly.utils.createSvgElement('foreignObject', {
+      'height': Blockly.FieldMarkov.INPUT_BOX_HEIGHT + 2,
+      'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH - 4,
       // 'x': Blockly.FieldMarkov.INPUT_BOX_HEIGHT / 2 + 0.5,
-      'x': 5,
-      'y': 17 + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN / 2 + (i + 1) * (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD),
+      'x': 2,
+      'y': Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN / 2 + (i + 1) * (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD),
       'fill': '#91dfbf',
       'id': i
     }, markovViewDiv);
-    addButtonText.innerHTML = (i == -1) ? '~' : this.sliderStrings_[i];
-    addButtonText.addEventListener('click', this.changeViewListener_.bind(this), false);
+
+    var text = document.createElement('p');
+    text.id = i;
+    text.style.fontSize = '12px';
+    text.style.color = '#91dfbf';
+    text.style.margin = 0;
+    text.style.textAlign = 'center';
+    text.innerHTML = (i == -1) ? '~' : this.sliderStrings_[i];
+    text.addEventListener('click', this.changeViewListener_.bind(this), false);
+    addButtonText.appendChild(text);
     markovViewBoxContainer.addEventListener('click', this.changeViewListener_.bind(this), false);
   }
 
@@ -604,7 +614,7 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
       if(this.diceType_ === 'costume'){
         Blockly.utils.createSvgElement('rect', {
           'x': x + (Blockly.FieldMarkov.SLIDER_NODE_WIDTH - Blockly.FieldMarkov.INPUT_BOX_WIDTH) / 2, 
-          'y': Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN * 2,
+          'y': Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN * 1,
           'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH + 'px', 
           'height': Blockly.FieldMarkov.INPUT_BOX_WIDTH + 'px',
           'rx': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
@@ -613,10 +623,10 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
         }, this.sliderStage_);
         var img = Blockly.utils.createSvgElement('image',
           {
-            'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH - 2,
-            'height': Blockly.FieldMarkov.INPUT_BOX_WIDTH -2,
-            'x': x + (Blockly.FieldMarkov.SLIDER_NODE_WIDTH - Blockly.FieldMarkov.INPUT_BOX_WIDTH) / 2 + 1,
-            'y': Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN * 2 + 1
+            'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH - 6,
+            'height': Blockly.FieldMarkov.INPUT_BOX_WIDTH -6,
+            'x': x + (Blockly.FieldMarkov.SLIDER_NODE_WIDTH - Blockly.FieldMarkov.INPUT_BOX_WIDTH) / 2 + 3,
+            'y': Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN * 1 + 3
           }, this.sliderStage_);
         img.setAttributeNS(
           'http://www.w3.org/1999/xlink',
@@ -642,13 +652,18 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
         playButton.addEventListener('click', this.playButtonListener_.bind(this), false);
       }
 
-
+      if(this.diceType_ === 'costume'){
+        var text_y = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.INPUT_BOX_WIDTH + Blockly.FieldMarkov.WASTEBIN_MARGIN + 'px';
+      }
+      else{
+        var text_y = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_HEIGHT
+      }
     // Add the svg containers for the textboxes.
     var textBoxContainer = Blockly.utils.createSvgElement('foreignObject', {
       'height': Blockly.FieldMarkov.INPUT_BOX_HEIGHT + 2,
       'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH,
       'x': x - ((Blockly.FieldMarkov.INPUT_BOX_WIDTH - Blockly.FieldMarkov.SLIDER_NODE_WIDTH) / 2),
-      'y': (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_HEIGHT
+      'y': text_y
     }, this.sliderStage_);
 
     // Put the textboxes into the containers.
