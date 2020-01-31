@@ -51,6 +51,7 @@ goog.require('Blockly.FieldNumber');
 goog.require('Blockly.FieldNumberDropdown');
 goog.require('Blockly.FieldMatrix');
 goog.require('Blockly.FieldSlider');
+goog.require('Blockly.FieldMarkov');
 goog.require('Blockly.FieldVariable');
 goog.require('Blockly.FieldVerticalSeparator');
 goog.require('Blockly.Generator');

@@ -19,12 +19,14 @@
  * 
  * CREDIT:
  * waste-bin.svg icon made by Egor Rumyantsev from www.flaticon.com
+ * play-button.svg icon made by Freepik from www.flaticon.com
  */
 
 /**
  * @fileoverview n-slider input field
  * Displays n sliders with fixed total height.
  * @author Ersin Arioglu (ersin.arioglu@gmail.com)
+ * @author Bhuvan Singla (bhuvansingla2000@gmail.com)
  */
 'use strict';
 
@@ -70,7 +72,27 @@ Blockly.FieldSlider = function(slider) {
    * @private
    */
   this.sliders_ = [];
-  
+
+  /**
+   * String to store type of dice
+   * @type {String}
+   * @private
+   */
+  this.diceType_ = '';
+
+  /**
+   * Array of costumes' image data
+   * @type {Array}
+   * @private
+   */
+  this.costumeData_ = [];
+
+  /**
+   * Array of sounds' audio data
+   * @type {Array}
+   * @private
+   */
+  this.soundData_ = [];
 
   /**
    * SVGElement for slider group in editor.
@@ -310,6 +332,13 @@ Blockly.FieldSlider.INPUT_BOX_WIDTH = 30;
 Blockly.FieldSlider.WASTEBIN_SVG_PATH = 'icons/waste-bin.svg';
 
 /**
+ * Path to the play button icon.
+ * @type {string}
+ * @const
+ */
+Blockly.FieldSlider.PLAY_BUTTON_SVG_PATH = 'icons/play-button.svg';
+
+/**
  * Size of the waste bin icon.
  * @type {number}
  * @const
@@ -406,24 +435,53 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
     return;
   }
   
-  
   var newArray = sliderValue.split('|');
   var sliders = newArray[0];
   var strings = newArray[1];
-
+  var diceType = newArray[2];
+  if (diceType == 'costume') {
+    var costumeData = newArray[3];
+  }
+  else if (diceType == 'sound') {
+    var soundData = newArray[3];
+  }
 
   if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
-    var oldValue = this.sliders_.toString() + '|' + this.sliderStrings_.toString();
-    Blockly.Events.fire(new Blockly.Events.Change( // Change the value of the block in Blockly.
-        // The fourth argument to this function is the old value of the field,
-        // The fifth argument is the new value.
-        this.sourceBlock_, 'field', this.name, oldValue, sliders + '|' + strings));
+    var oldValue;
+    var newValue;
+
+    switch(diceType) {
+      case 'costume':
+        oldValue = this.sliders_.toString() + '|' + this.sliderStrings_.toString() + '|' + diceType + '|' + this.costumeData_.join('~');
+        newValue = sliders + '|' + strings + '|' + diceType + '|' + costumeData;
+        break;
+      case 'sound':
+        oldValue = this.sliders_.toString() + '|' + this.sliderStrings_.toString() + '|' + diceType + '|' + this.soundData_.join('~');
+        newValue = sliders + '|' + strings + '|' + diceType + '|' + soundData;
+        break;
+      default:
+        oldValue = this.sliders_.toString() + '|' + this.sliderStrings_.toString() + '|' + diceType;
+        newValue = sliders + '|' + strings + '|' + diceType;
     }
+    Blockly.Events.fire(new Blockly.Events.Change( // Change the value of the block in Blockly.
+      this.sourceBlock_, 'field', this.name, oldValue, newValue));
+  }
+
   // Set the new value of this.sliders_ only after changing the field in the block
   // in order to have atomicity. This is the only place where this.sliders_ is mutated.
 
   this.sliders_ = JSON.parse("[" + sliders + "]");
   this.sliderStrings_ = strings.split('~');
+  this.diceType_ = diceType;
+  switch (diceType) {
+    case 'costume':
+      this.costumeData_ = costumeData.split('~');
+      break;
+    case 'sound':
+      this.soundData_ = soundData.split('~');
+      break;
+  }
+
   this.updateSlider_();
 };
 
@@ -434,7 +492,15 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
 Blockly.FieldSlider.prototype.getValue = function() {
   // Report the value as a string because Blockly cannot handle arrays.
   // Also safety from rep exposure.
-  return this.sliders_.toString() + '|' + this.sliderStrings_.join('~');
+  switch (this.diceType_) {
+    case 'costume':
+      return this.sliders_.toString() + '|' + this.sliderStrings_.join('~') + '|' + this.diceType_ + '|' + this.costumeData_.join('~');
+    case 'sound':
+      return this.sliders_.toString() + '|' + this.sliderStrings_.join('~') + '|' + this.diceType_ + '|' + this.soundData_.join('~');
+    default:
+      return this.sliders_.toString() + '|' + this.sliderStrings_.join('~') + '|' + this.diceType_;
+
+  }
 };
 
 /**
@@ -467,12 +533,19 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'width': Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN
   }, div);
 
+  var sliderStageHeight;
+  if(this.diceType_ === 'costume' || this.diceType_ === 'sound'){
+    sliderStageHeight = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.BOTTOM_MARGIN + Blockly.FieldSlider.INPUT_BOX_WIDTH + Blockly.FieldSlider.WASTEBIN_MARGIN;
+  }
+  else{
+    sliderStageHeight = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.BOTTOM_MARGIN;
+  }
   this.sliderStage_ = Blockly.utils.createSvgElement('svg', {
     'xmlns': 'http://www.w3.org/2000/svg',
     'xmlns:html': 'http://www.w3.org/1999/xhtml',
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
     'version': '1.1',
-    'height': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.BOTTOM_MARGIN) + 'px',
+    'height': sliderStageHeight,
     'width': sliderSize + 'px',
     'cursor': 'ns-resize'
   }, div);
@@ -511,15 +584,62 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   for (var i = 0; i < Blockly.FieldSlider.MAX_SLIDER_NUMBER; i++) {
     var x = (Blockly.FieldSlider.SLIDER_NODE_WIDTH * i) +
       (Blockly.FieldSlider.SLIDER_NODE_PAD * (i + 0.5));
+    
+    if(this.diceType_ === 'costume'){
+      Blockly.utils.createSvgElement('rect', {
+        'x': x + (Blockly.FieldSlider.SLIDER_NODE_WIDTH - Blockly.FieldSlider.INPUT_BOX_WIDTH) / 2, 
+        'y': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 1,
+        'width': Blockly.FieldSlider.INPUT_BOX_WIDTH + 'px', 
+        'height': Blockly.FieldSlider.INPUT_BOX_WIDTH + 'px',
+        'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
+        'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
+        'fill': '#FFFFFF'
+      }, this.sliderStage_);
+      var img = Blockly.utils.createSvgElement('image',
+        {
+          'width': Blockly.FieldSlider.INPUT_BOX_WIDTH - 6,
+          'height': Blockly.FieldSlider.INPUT_BOX_WIDTH -6,
+          'x': x + (Blockly.FieldSlider.SLIDER_NODE_WIDTH - Blockly.FieldSlider.INPUT_BOX_WIDTH) / 2 + 3,
+          'y': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN + 3
+        }, this.sliderStage_);
+      img.setAttributeNS(
+        'http://www.w3.org/1999/xlink',
+        'xlink:href',
+        "data:image/svg+xml;base64," + this.costumeData_[i]
+      );
+    }
 
+    if (this.diceType_ === 'sound') {
+      var playButton = Blockly.utils.createSvgElement('image',
+        {
+          'width': Blockly.FieldSlider.INPUT_BOX_WIDTH - 2,
+          'height': Blockly.FieldSlider.INPUT_BOX_WIDTH - 2,
+          'x': x + (Blockly.FieldSlider.SLIDER_NODE_WIDTH - Blockly.FieldSlider.INPUT_BOX_WIDTH) / 2 + 1,
+          'y': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 2 + 1,
+          'id': i
+        }, this.sliderStage_);
+      playButton.setAttributeNS(
+        'http://www.w3.org/1999/xlink',
+        'xlink:href',
+        Blockly.mainWorkspace.options.pathToMedia + Blockly.FieldSlider.PLAY_BUTTON_SVG_PATH
+      );
+      playButton.addEventListener('click', this.playButtonListener_.bind(this), false);
+    }
 
+    var waste_bin_y;
+    if(this.diceType_ === 'costume' || this.diceType_ === 'sound' ){
+      waste_bin_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 3 + Blockly.FieldSlider.INPUT_BOX_WIDTH;
+    }
+    else{
+      waste_bin_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 2;
+    }
     // Import the waste-bin svg.
     var wasteBin = Blockly.utils.createSvgElement('image',
       {
         'width': Blockly.FieldSlider.WASTEBIN_SIZE,
         'height': Blockly.FieldSlider.WASTEBIN_SIZE,
         'x': x + (Blockly.FieldSlider.SLIDER_NODE_WIDTH - Blockly.FieldSlider.WASTEBIN_SIZE) / 2,
-        'y': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN * 2
+        'y': waste_bin_y
       }, this.sliderStage_);
     wasteBin.setAttributeNS(
       'http://www.w3.org/1999/xlink',
@@ -528,17 +648,20 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     );
     wasteBin.addEventListener('click', this.removeSliderListener_.bind(this), false);
 
+    if(this.diceType_ === 'costume'){
+      var text_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_WIDTH + Blockly.FieldMarkov.WASTEBIN_MARGIN + 'px';
+    }
+    else{
+      var text_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN
+    }
 
-    
-
-    
     // Add the svg containers for the textboxes.
 
     var textBoxContainer = Blockly.utils.createSvgElement('foreignObject', {
       'height': Blockly.FieldSlider.INPUT_BOX_HEIGHT + 2,
       'width': Blockly.FieldSlider.INPUT_BOX_WIDTH,
       'x': x - ((Blockly.FieldSlider.INPUT_BOX_WIDTH - Blockly.FieldSlider.SLIDER_NODE_WIDTH) / 2),
-      'y': Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN
+      'y': text_y
     }, this.sliderStage_);
 
     // Put the textboxes into the containers.
@@ -549,7 +672,9 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     textbox.style.outline = 'none';
 
     
-
+    if(this.diceType_ === 'costume' || this.diceType_ === 'sound' ){
+      textbox.readOnly = true;
+    }
 
     if (i >= this.sliderStrings_.length) {
       textbox.defaultValue = '';
@@ -792,7 +917,16 @@ Blockly.FieldSlider.prototype.handleIncreaseNumSlidersEvent = function () {
   newArray[newArray.length - 1] = arrayValue;
   newStrings[newArray.length - 1] = newArray.length;
 
-  this.setValue(newArray.toString() + '|' + newStrings.join('~'));
+  // this.setValue(newArray.toString() + '|' + newStrings.join('~'));
+  if(this.diceType_ === 'costume'){
+    this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.costumeData_.join('~'));
+  }
+  else if(this.diceType_ === 'sound') {
+    this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.soundData_.join('~'));
+  }
+  else{
+    this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_);
+  }
 
 }
 
@@ -804,7 +938,16 @@ Blockly.FieldSlider.prototype.keyboardListenerFactory = function (index) {
       this.textboxes_[index].value = this.textboxes_[index].value.replace(/\||~/g, '');
     }
     newArray[index] = this.textboxes_[index].value;
-    this.setValue(this.sliders_.toString() + '|' + newArray.join('~'));
+    // this.setValue(this.sliders_.toString() + '|' + newArray.join('~'));
+    if(this.diceType_ === 'costume'){
+      this.setValue(this.sliders_.toString() + '|' + newArray.join('~') + '|' + this.diceType_ + '|' + this.costumeData_.join('~'));
+    }
+    else if(this.diceType_ === 'sound') {
+      this.setValue(this.sliders_.toString() + '|' + newArray.join('~') + '|' + this.diceType_ + '|' + this.soundData_.join('~'));
+    }
+    else{
+      this.setValue(this.sliders_.toString() + '|' + newArray.join('~') + '|' + this.diceType_);
+    }
   };
 }
 
@@ -921,7 +1064,15 @@ Blockly.FieldSlider.prototype.setSliderNode_ = function(sliderIndex, newHeight) 
     }
   }
   slidersCopy[sliderIndex] = newHeight;
-  this.setValue(slidersCopy.toString() + '|' + this.sliderStrings_.join('~'));
+  if(this.diceType_ === 'costume'){
+    this.setValue(slidersCopy.toString() + '|' + this.sliderStrings_.join('~') + '|' + this.diceType_ + '|' + this.costumeData_.join('~'));
+  }
+  else if(this.diceType_ === 'sound') {
+    this.setValue(slidersCopy.toString() + '|' + this.sliderStrings_.join('~') + '|' + this.diceType_ + '|' + this.soundData_.join('~'));
+  }
+  else{
+    this.setValue(slidersCopy.toString() + '|' + this.sliderStrings_.join('~') + '|' + this.diceType_);
+  }
 };
 
 /**
@@ -1008,7 +1159,22 @@ Blockly.FieldSlider.prototype.removeSliderListener_ = function(e) {
       newStrings.push(this.sliderStrings_[i]);
     }
   }
-  this.setValue(newArray.toString() + '|' + newStrings.join('~'));
+  //this.setValue(newArray.toString() + '|' + newStrings.join('~'));
+  if(this.diceType_ === 'costume'){
+    this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.costumeData_.join('~'));
+  }
+  else if(this.diceType_ === 'sound') {
+    this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.soundData_.join('~'));
+  }
+  else{
+    this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_);
+  }
+}
+
+Blockly.FieldSlider.prototype.playButtonListener_ = function(e) {
+  var id = e.target.id;
+  var sound = new Audio("data:audio/wav;base64," + this.soundData_[id]);
+  sound.play();
 }
 
 /**
@@ -1052,7 +1218,16 @@ Blockly.FieldSlider.prototype.setToUniform_ = function () {
     newArray.push(arrayValue);
     newStrings.push(this.sliderStrings_[i]);
   }
-  this.setValue(newArray.toString() + '|' + newStrings.join('~'));
+  //this.setValue(newArray.toString() + '|' + newStrings.join('~'));
+  if(this.diceType_ === 'costume'){
+    this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.costumeData_.join('~'));
+  }
+  else if(this.diceType_ === 'sound') {
+    this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.soundData_.join('~'));
+  }
+  else{
+    this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_);
+  }
 }
 
 Blockly.FieldSlider.prototype.setToRandom_ = function() {
@@ -1070,7 +1245,16 @@ Blockly.FieldSlider.prototype.setToRandom_ = function() {
   for (var i = 0; i < numSliders; i++) {
     newArray[i] = (newArray[i] / sumOfArray) * 100.0;
   }
-  this.setValue(newArray.toString() + '|' + newStrings.join('~'));
+  // this.setValue(newArray.toString() + '|' + newStrings.join('~'));
+  if(this.diceType_ === 'costume'){
+    this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.costumeData_.join('~'));
+  }
+  else if(this.diceType_ === 'sound') {
+    this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.soundData_.join('~'));
+  }
+  else{
+    this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_);
+  }
 }
 
 
