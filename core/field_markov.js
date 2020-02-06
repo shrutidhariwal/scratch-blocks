@@ -672,6 +672,8 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
     textbox.style.height = Blockly.FieldMarkov.INPUT_BOX_HEIGHT + 'px';
     textbox.style.border = 'none';
     textbox.style.outline = 'none';
+    textbox.style.color = '#91dfbf';
+    textbox.style.backgroundColor = this.sourceBlock_.getColourTertiary();
     textbox.readOnly = true;
 
     if (i >= this.sliderStrings_.length) {
