@@ -535,6 +535,13 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'width': Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN
   }, div);
 
+  var sliderStageDiv = document.createElement('div');
+  sliderStageDiv.style.display = 'inline-block';
+  sliderStageDiv.style.overflow = 'auto';
+  sliderStageDiv.style.maxWidth = '230px';
+  sliderStageDiv.id = 'chanceExtension';
+  div.appendChild(sliderStageDiv);
+
   var sliderStageHeight;
   if (this.diceType_ === 'costume' || this.diceType_ === 'sound') {
     sliderStageHeight = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.BOTTOM_MARGIN + Blockly.FieldSlider.INPUT_BOX_WIDTH + Blockly.FieldSlider.WASTEBIN_MARGIN;
@@ -549,7 +556,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'height': sliderStageHeight,
     'width': sliderSize + 'px',
     'cursor': 'ns-resize'
-  }, div);
+  }, sliderStageDiv);
 
   this.sliderStage_.addEventListener('mousemove', this.stageHoverMoveListener_.bind(this), false);
   this.sliderStage_.addEventListener('mouseleave', this.stageMouseOut_.bind(this), false);

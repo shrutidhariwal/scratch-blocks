@@ -1346,5 +1346,17 @@ Blockly.Css.CONTENT = [
   '.scratchCategoryMenuItem:hover {',
     'color: $colour_toolboxHover !important;',
   '}',
-  ''
+  '',
+
+  '#chanceExtension::-webkit-scrollbar-thumb {',
+    'border-radius: 10px;',
+    'box-shadow: inset 0 0 6px rgba(0,0,0,.3);',
+    'background-color: #1b8e68;',
+  '}',
+
+  '#chanceExtension::-webkit-scrollbar {',
+  'height: 6px;',
+  'border-radius: 10px;',
+	'background-color: #FFFFFF;',
+'}'
 ];
