@@ -513,11 +513,19 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
     'version': '1.1',
     'height': Blockly.FieldMarkov.SLIDER_NODE_WIDTH,
-    'width': Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN
+    'width': '15px'
   }, div);
 
+  var mDiv = document.createElement('div');
+  mDiv.style.display = 'inline-block';
+  mDiv.style.overflow = 'auto';
+  mDiv.style.maxHeight = '145px';
+  mDiv.style.marginBottom = '20px';
+  mDiv.id = 'chanceExtension';
+  div.appendChild(mDiv);
+
   //Div for markov distribution buttons.
-  var height = ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BOTTOM_MARGIN + 20);
+  var height = ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1));
   if(this.diceType_ === 'costume' || this.diceType_ === 'sound'){
     height += Blockly.FieldMarkov.INPUT_BOX_WIDTH;
   }
@@ -528,7 +536,7 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
     'version': '1.1',
     'height': height + 'px',
     'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH + 10
-  }, div);
+  }, mDiv);
 
   //Add markov view buttons
   for (var i = -1; i < this.sliderStrings_.length; i++) {
@@ -541,7 +549,7 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
       'fill': color,
       'id': i,
       'x': 0,
-      'y': Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN / 2 + (i + 1) * (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD),
+      'y': (i + 1) * (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD),
     }, markovViewDiv);
     
     var addButtonText = Blockly.utils.createSvgElement('foreignObject', {
@@ -549,11 +557,11 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
       'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH - 4,
       // 'x': Blockly.FieldMarkov.INPUT_BOX_HEIGHT / 2 + 0.5,
       'x': 2,
-      'y': Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN / 2 + (i + 1) * (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD),
+      'y': (i + 1) * (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD),
       'fill': '#91dfbf',
       'id': i
     }, markovViewDiv);
-
+    
     var text = document.createElement('p');
     text.id = i;
     text.style.fontSize = '12px';
@@ -565,12 +573,25 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
     addButtonText.appendChild(text);
     markovViewBoxContainer.addEventListener('click', this.changeViewListener_.bind(this), false);
   }
-
-  Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BUTTON_HEIGHT + (Blockly.FieldMarkov.WASTEBIN_MARGIN / 2);
-
-  var height = ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BOTTOM_MARGIN + Blockly.FieldMarkov.BUTTON_HEIGHT);
-  if (this.diceType_ === 'costume' || this.diceType_ === 'sound'){
-    height += Blockly.FieldMarkov.INPUT_BOX_WIDTH;
+  
+  //Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BUTTON_HEIGHT + (Blockly.FieldMarkov.WASTEBIN_MARGIN / 2); 
+  
+  var sliderStageDiv = document.createElement('div');
+  sliderStageDiv.style.display = 'inline-block';
+  sliderStageDiv.style.overflow = 'auto';
+  sliderStageDiv.style.maxWidth = '230px';
+  sliderStageDiv.style.marginLeft = '6px';
+  sliderStageDiv.id = 'chanceExtension';
+  div.appendChild(sliderStageDiv);
+  
+  // var height = ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BOTTOM_MARGIN + Blockly.FieldMarkov.BUTTON_HEIGHT);
+  // if (this.diceType_ === 'costume' || this.diceType_ === 'sound'){
+  //   height += Blockly.FieldMarkov.INPUT_BOX_WIDTH;
+  // }
+  if (this.diceType_ === 'costume' || this.diceType_ === 'sound') {
+    height = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.BOTTOM_MARGIN - 15 + Blockly.FieldSlider.INPUT_BOX_WIDTH + Blockly.FieldSlider.WASTEBIN_MARGIN;
+  } else {
+    height = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.BOTTOM_MARGIN - 15;
   }
   this.sliderStage_ = Blockly.utils.createSvgElement('svg', {
     'xmlns': 'http://www.w3.org/2000/svg',
@@ -580,8 +601,8 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
     'height': height,
     'width': sliderSize + 'px',
     'cursor': 'ns-resize'
-  }, div);
-
+  }, sliderStageDiv);
+  
   this.sliderStage_.addEventListener('mousemove', this.stageHoverMoveListener_.bind(this), false);
   this.sliderStage_.addEventListener('mouseleave', this.stageMouseOut_.bind(this), false);
 
@@ -599,7 +620,7 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
   this.whiteBackground_ = Blockly.utils.createSvgElement('rect', {
     'x': '0px', 'y': Blockly.FieldMarkov.BUTTON_HEIGHT + (Blockly.FieldMarkov.WASTEBIN_MARGIN / 2) + 'px',
     'width': sliderSize + 'px',
-    'height': (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + 'px',
+    'height': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.BUTTON_HEIGHT) + 'px',
     'rx': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
     'ry': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
     'fill': '#FFFFFF'
@@ -653,10 +674,12 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
       }
 
       if(this.diceType_ === 'costume'){
-        var text_y = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.INPUT_BOX_WIDTH + Blockly.FieldMarkov.WASTEBIN_MARGIN + 'px';
+        //var text_y = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.INPUT_BOX_WIDTH + Blockly.FieldMarkov.WASTEBIN_MARGIN + 'px';
+        var text_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_WIDTH + Blockly.FieldMarkov.WASTEBIN_MARGIN + 'px';
       }
       else{
-        var text_y = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_HEIGHT
+        var text_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN;
+        //var text_y = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_HEIGHT
       }
     // Add the svg containers for the textboxes.
     var textBoxContainer = Blockly.utils.createSvgElement('foreignObject', {
@@ -688,12 +711,14 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
     this.textboxes_.push(textbox);
 
     // Add the slider rectangles.
-    var y = 45;
+    // var y = 45;
+    var y = sliderSize - Blockly.FieldSlider.SLIDER_NODE_WIDTH;
     var attr = {
       'x': x + 'px', 'y': y + 'px',
       'width': Blockly.FieldMarkov.SLIDER_NODE_WIDTH,
       //'height': Blockly.FieldMarkov.MAX_SLIDER_HEIGHT,
-      'height': (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - 28,
+      // 'height': (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - 28,
+      'height': Blockly.FieldSlider.MAX_SLIDER_HEIGHT,
       'rx': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
       'ry': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
       'fill': '#65CEFF'
@@ -885,18 +910,31 @@ Blockly.FieldMarkov.prototype.fillSliderNode_ = function(height, index) {
     this.sliderThumbNodes_[index].setAttribute('y', (maxHeight - newHeight));
     this.sliderThumbNodes_[index].setAttribute('height', newHeight);
 
-    maxHeight = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - 28;
+    // maxHeight = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - 28;
+    // newHeight = height / 100.0 * maxHeight;
+
+    maxHeight = Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
     newHeight = height / 100.0 * maxHeight;
 
-    this.sliderTexts_[index].setAttribute('y', ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - newHeight - 10 + 17));
+    this.sliderTexts_[index].setAttribute('y', (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight - 10));
     this.sliderTexts_[index].innerHTML = Math.round(height) + '%';
     var textWidth = this.sliderTexts_[index].getBoundingClientRect().width;
-    this.sliderTexts_[index].setAttribute('x', x - (textWidth - Blockly.FieldMarkov.SLIDER_NODE_WIDTH) / 2);
+    this.sliderTexts_[index].setAttribute('x', x - (textWidth - Blockly.FieldSlider.SLIDER_NODE_WIDTH) / 2);
 
     this.textboxes_[index].value = this.sliderStrings_[index];
 
-    this.sliderRects_[index].setAttribute('y', ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - newHeight + 17));
-    this.sliderRects_[index].setAttribute('height', newHeight);
+    this.sliderRects_[index].setAttribute('y', (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight));
+    this.sliderRects_[index].setAttribute('height', newHeight)
+
+    // this.sliderTexts_[index].setAttribute('y', ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - newHeight - 10 + 17));
+    // this.sliderTexts_[index].innerHTML = Math.round(height) + '%';
+    // var textWidth = this.sliderTexts_[index].getBoundingClientRect().width;
+    // this.sliderTexts_[index].setAttribute('x', x - (textWidth - Blockly.FieldMarkov.SLIDER_NODE_WIDTH) / 2);
+
+    // this.textboxes_[index].value = this.sliderStrings_[index];
+
+    // this.sliderRects_[index].setAttribute('y', ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - newHeight + 17));
+    // this.sliderRects_[index].setAttribute('height', newHeight);
 
   }
 };

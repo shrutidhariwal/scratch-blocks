@@ -1356,6 +1356,7 @@ Blockly.Css.CONTENT = [
 
   '#chanceExtension::-webkit-scrollbar {',
   'height: 6px;',
+  'width: 6px;',
   'border-radius: 10px;',
 	'background-color: #FFFFFF;',
 '}'
