@@ -413,7 +413,7 @@ Blockly.FieldMarkov.prototype.init = function() {
       'fill': '#FFFFFF'
     };
     this.sliderThumbNodes_.push(
-        Blockly.utils.createSvgElement('rect', attr, this.thumbnail_)
+        Blockly.utils.createSvgElement('rect', attr, i < 6 ? this.thumbnail_ : null)
     );
 
     this.thumbnail_.style.cursor = 'default';
