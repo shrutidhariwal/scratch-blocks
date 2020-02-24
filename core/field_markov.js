@@ -280,14 +280,14 @@ Blockly.FieldMarkov.SLIDER_NODE_PAD = 20;
  * @type {number}
  * @const
  */
-Blockly.FieldMarkov.MAX_SLIDER_HEIGHT = 100;
+Blockly.FieldMarkov.MAX_SLIDER_HEIGHT = 135;
 
 /**
  * Fixed height of the div that will contain the sliders.
  * @type {number}
  * @const
  */
-Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT = 145;//140;
+Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT = 180 //145;//140;
 
 
 /**
@@ -519,7 +519,7 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
   var mDiv = document.createElement('div');
   mDiv.style.display = 'inline-block';
   mDiv.style.overflow = 'auto';
-  mDiv.style.maxHeight = '145px';
+  mDiv.style.maxHeight = '180px';
   mDiv.style.marginBottom = '20px';
   mDiv.id = 'chanceExtension';
   div.appendChild(mDiv);
@@ -589,9 +589,9 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
   //   height += Blockly.FieldMarkov.INPUT_BOX_WIDTH;
   // }
   if (this.diceType_ === 'costume' || this.diceType_ === 'sound') {
-    height = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.BOTTOM_MARGIN - 15 + Blockly.FieldSlider.INPUT_BOX_WIDTH + Blockly.FieldSlider.WASTEBIN_MARGIN;
+    height = Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + Blockly.FieldMarkov.BOTTOM_MARGIN - 15 + Blockly.FieldMarkov.INPUT_BOX_WIDTH + Blockly.FieldMarkov.WASTEBIN_MARGIN;
   } else {
-    height = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.BOTTOM_MARGIN - 15;
+    height = Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + Blockly.FieldMarkov.BOTTOM_MARGIN - 15;
   }
   this.sliderStage_ = Blockly.utils.createSvgElement('svg', {
     'xmlns': 'http://www.w3.org/2000/svg',
@@ -620,7 +620,7 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
   this.whiteBackground_ = Blockly.utils.createSvgElement('rect', {
     'x': '0px', 'y': Blockly.FieldMarkov.BUTTON_HEIGHT + (Blockly.FieldMarkov.WASTEBIN_MARGIN / 2) + 'px',
     'width': sliderSize + 'px',
-    'height': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.BUTTON_HEIGHT) + 'px',
+    'height': (Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT - Blockly.FieldMarkov.BUTTON_HEIGHT) + 'px',
     'rx': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
     'ry': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
     'fill': '#FFFFFF'
@@ -675,10 +675,10 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
 
       if(this.diceType_ === 'costume'){
         //var text_y = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.INPUT_BOX_WIDTH + Blockly.FieldMarkov.WASTEBIN_MARGIN + 'px';
-        var text_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_WIDTH + Blockly.FieldMarkov.WASTEBIN_MARGIN + 'px';
+        var text_y = Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_WIDTH + Blockly.FieldMarkov.WASTEBIN_MARGIN + 'px';
       }
       else{
-        var text_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN;
+        var text_y = Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN;
         //var text_y = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_HEIGHT
       }
     // Add the svg containers for the textboxes.
@@ -712,13 +712,13 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
 
     // Add the slider rectangles.
     // var y = 45;
-    var y = sliderSize - Blockly.FieldSlider.SLIDER_NODE_WIDTH;
+    var y = sliderSize - Blockly.FieldMarkov.SLIDER_NODE_WIDTH;
     var attr = {
       'x': x + 'px', 'y': y + 'px',
       'width': Blockly.FieldMarkov.SLIDER_NODE_WIDTH,
       //'height': Blockly.FieldMarkov.MAX_SLIDER_HEIGHT,
       // 'height': (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - 28,
-      'height': Blockly.FieldSlider.MAX_SLIDER_HEIGHT,
+      'height': Blockly.FieldMarkov.MAX_SLIDER_HEIGHT,
       'rx': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
       'ry': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
       'fill': '#65CEFF'
@@ -913,17 +913,17 @@ Blockly.FieldMarkov.prototype.fillSliderNode_ = function(height, index) {
     // maxHeight = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - 28;
     // newHeight = height / 100.0 * maxHeight;
 
-    maxHeight = Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
+    maxHeight = Blockly.FieldMarkov.MAX_SLIDER_HEIGHT;
     newHeight = height / 100.0 * maxHeight;
 
-    this.sliderTexts_[index].setAttribute('y', (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight - 10));
+    this.sliderTexts_[index].setAttribute('y', (Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT - newHeight - 10));
     this.sliderTexts_[index].innerHTML = Math.round(height) + '%';
     var textWidth = this.sliderTexts_[index].getBoundingClientRect().width;
-    this.sliderTexts_[index].setAttribute('x', x - (textWidth - Blockly.FieldSlider.SLIDER_NODE_WIDTH) / 2);
+    this.sliderTexts_[index].setAttribute('x', x - (textWidth - Blockly.FieldMarkov.SLIDER_NODE_WIDTH) / 2);
 
     this.textboxes_[index].value = this.sliderStrings_[index];
 
-    this.sliderRects_[index].setAttribute('y', (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - newHeight));
+    this.sliderRects_[index].setAttribute('y', (Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT - newHeight));
     this.sliderRects_[index].setAttribute('height', newHeight)
 
     // this.sliderTexts_[index].setAttribute('y', ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - newHeight - 10 + 17));
@@ -1008,7 +1008,7 @@ Blockly.FieldMarkov.prototype.setSliderNode_ = function(sliderIndex, newHeight) 
  */
 Blockly.FieldMarkov.prototype.onMouseDown = function(e) {
   var numSliders = this.sliders_.length;
-  Blockly.FieldMarkov.MAX_SLIDER_HEIGHT = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - 28;
+  //Blockly.FieldMarkov.MAX_SLIDER_HEIGHT = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) - 28;
   var bBox = this.sliderStage_.getBoundingClientRect();
   var dy = e.clientY - bBox.top - (Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT - Blockly.FieldMarkov.MAX_SLIDER_HEIGHT);
   this.sliderMoveWrapper_ =
@@ -1057,7 +1057,7 @@ Blockly.FieldMarkov.prototype.onMouseUp = function() {
  * @param {!Event} e Mouse move event.
  */
 Blockly.FieldMarkov.prototype.onMouseMove = function(e) {
-  Blockly.FieldMarkov.MAX_SLIDER_HEIGHT = 0.9 * (Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT - Blockly.FieldMarkov.BUTTON_HEIGHT);
+ // Blockly.FieldMarkov.MAX_SLIDER_HEIGHT = (Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT - Blockly.FieldMarkov.BUTTON_HEIGHT);
   e.preventDefault();
   var bBox = this.sliderStage_.getBoundingClientRect();
   var dy = e.clientY - bBox.top - (Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT - Blockly.FieldMarkov.MAX_SLIDER_HEIGHT);
