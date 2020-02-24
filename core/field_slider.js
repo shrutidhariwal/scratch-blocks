@@ -658,7 +658,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     );
     wasteBin.addEventListener('click', this.removeSliderListener_.bind(this), false);
     if (this.diceType_ === 'costume' || this.diceType_ === 'sound') {
-      var text_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_WIDTH + Blockly.FieldMarkov.WASTEBIN_MARGIN + 'px';
+      var text_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN + Blockly.FieldSlider.INPUT_BOX_WIDTH + Blockly.FieldSlider.WASTEBIN_MARGIN + 'px';
       wasteBin.setAttribute('visibility', 'hidden');
     } else {
       var text_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN
@@ -931,28 +931,34 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
  * Event listener for the plus button in the dropdown menu.
  */
 Blockly.FieldSlider.prototype.handleIncreaseNumSlidersEvent = function() {
+
+  
   var currentValue = this.sliders_.length;
   if (currentValue === Blockly.FieldSlider.MAX_SLIDER_NUMBER) { return; } // Number of sliders is already at the maximum so do nothing.
   var arrayValue = 100.0 / (currentValue + 1);
   this.setSliderNode_(currentValue, arrayValue);
-
+  
   var newArray = this.sliders_.slice();
   var newStrings = this.sliderStrings_.slice();
-
+  
   newArray[newArray.length - 1] = arrayValue;
   newStrings[newArray.length - 1] = newArray.length;
-
+  
   // this.setValue(newArray.toString() + '|' + newStrings.join('~'));
   //if(this.diceType_ === 'costume'){
-  //this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.costumeData_.join('~'));
-  //}
-  //else if(this.diceType_ === 'sound') {
-  // this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.soundData_.join('~'));
-  //}
-  //else{
-  this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_);
-  //}
-
+    //this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.costumeData_.join('~'));
+    //}
+    //else if(this.diceType_ === 'sound') {
+      // this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_ + '|' + this.soundData_.join('~'));
+      //}
+      //else{
+        this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_);
+        //}
+        var stage = document.getElementById('chanceExtension');
+        var k = (Blockly.FieldSlider.SLIDER_NODE_WIDTH + Blockly.FieldSlider.SLIDER_NODE_PAD) * (this.sliders_.length);
+        console.log(k)
+        stage.scrollLeft = k;
+        
 }
 
 Blockly.FieldSlider.prototype.keyboardListenerFactory = function(index) {
