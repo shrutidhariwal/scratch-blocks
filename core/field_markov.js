@@ -287,7 +287,7 @@ Blockly.FieldMarkov.MAX_SLIDER_HEIGHT = 135;
  * @type {number}
  * @const
  */
-Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT = 180 //145;//140;
+Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT = 180 - 17 //145;//140;
 
 
 /**
@@ -309,7 +309,7 @@ Blockly.FieldMarkov.BUTTON_WIDTH = 24;
  * @type {number}
  * @const
  */
-Blockly.FieldMarkov.BUTTON_HEIGHT = 17;
+Blockly.FieldMarkov.BUTTON_HEIGHT = 19;
 
 /**
  * Padding between the buttons.
@@ -504,39 +504,38 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
   var div = Blockly.DropDownDiv.getContentDiv();
 
   var numSliders = this.sliders_.length;
-  var sliderSize = (Blockly.FieldMarkov.SLIDER_NODE_WIDTH * numSliders) +
-    (Blockly.FieldMarkov.SLIDER_NODE_PAD * numSliders);
+  var sliderSize = (Blockly.FieldMarkov.SLIDER_NODE_WIDTH + Blockly.FieldMarkov.SLIDER_NODE_PAD) * numSliders;
 
   Blockly.utils.createSvgElement('svg', {
     'xmlns': 'http://www.w3.org/2000/svg',
     'xmlns:html': 'http://www.w3.org/1999/xhtml',
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
     'version': '1.1',
-    'height': Blockly.FieldMarkov.SLIDER_NODE_WIDTH,
+    'height': '18px',
     'width': '15px'
   }, div);
 
-  var mDiv = document.createElement('div');
-  mDiv.style.display = 'inline-block';
-  mDiv.style.overflow = 'auto';
-  mDiv.style.maxHeight = '180px';
-  mDiv.style.marginBottom = '20px';
-  mDiv.id = 'chanceExtension';
-  div.appendChild(mDiv);
-
   //Div for markov distribution buttons.
+  var markovDiv = document.createElement('div');
+  markovDiv.style.display = 'inline-block';
+  markovDiv.style.overflow = 'auto';
+  markovDiv.style.maxHeight = '180px';
+  markovDiv.style.marginBottom = '20px';
+  markovDiv.id = 'chanceExtension';
+  div.appendChild(markovDiv);
+
   var height = ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1));
   if(this.diceType_ === 'costume' || this.diceType_ === 'sound'){
     height += Blockly.FieldMarkov.INPUT_BOX_WIDTH;
   }
-  var markovViewDiv = Blockly.utils.createSvgElement('svg', {
+  var markovViews = Blockly.utils.createSvgElement('svg', {
     'xmlns': 'http://www.w3.org/2000/svg',
     'xmlns:html': 'http://www.w3.org/1999/xhtml',
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
     'version': '1.1',
     'height': height + 'px',
-    'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH + 10
-  }, mDiv);
+    'width': Blockly.FieldMarkov.INPUT_BOX_WIDTH + (Blockly.FieldMarkov.PAD * 2)
+  }, markovDiv);
 
   //Add markov view buttons
   for (var i = -1; i < this.sliderStrings_.length; i++) {
@@ -550,7 +549,7 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
       'id': i,
       'x': 0,
       'y': (i + 1) * (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD),
-    }, markovViewDiv);
+    }, markovViews);
     
     var addButtonText = Blockly.utils.createSvgElement('foreignObject', {
       'height': Blockly.FieldMarkov.INPUT_BOX_HEIGHT + 2,
@@ -560,7 +559,7 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
       'y': (i + 1) * (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD),
       'fill': '#91dfbf',
       'id': i
-    }, markovViewDiv);
+    }, markovViews);
     
     var text = document.createElement('p');
     text.id = i;
@@ -568,6 +567,8 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
     text.style.color = '#91dfbf';
     text.style.margin = 0;
     text.style.textAlign = 'center';
+    text.style.wordBreak = 'break-all';
+    text.title = (i == -1) ? '~' : this.sliderStrings_[i];
     text.innerHTML = (i == -1) ? '~' : this.sliderStrings_[i];
     text.addEventListener('click', this.changeViewListener_.bind(this), false);
     addButtonText.appendChild(text);
@@ -575,14 +576,28 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
   }
   
   //Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT = (Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BUTTON_HEIGHT + (Blockly.FieldMarkov.WASTEBIN_MARGIN / 2); 
-  
+  var mainDiv = document.createElement('div');
+  mainDiv.style.display = 'inline-block';
+  div.appendChild(mainDiv);
+  var buttonsDiv = document.createElement('div');
+  buttonsDiv.style.height = Blockly.FieldMarkov.BUTTON_HEIGHT + 'px';
+  buttonsDiv.style.marginLeft = '6px';
+  buttonsDiv.style.maxWidth = '230px';
+  buttonsDiv.style.overflow = 'hidden';
+  mainDiv.appendChild(buttonsDiv);
+  var buttonDiv = Blockly.utils.createSvgElement('svg', {
+    'x': '0px',
+    'y': '0px',
+    'width': '70px'
+  }, buttonsDiv);
+  this.createUniformRandomButtons(buttonDiv);
   var sliderStageDiv = document.createElement('div');
   sliderStageDiv.style.display = 'inline-block';
   sliderStageDiv.style.overflow = 'auto';
   sliderStageDiv.style.maxWidth = '230px';
   sliderStageDiv.style.marginLeft = '6px';
   sliderStageDiv.id = 'chanceExtension';
-  div.appendChild(sliderStageDiv);
+  mainDiv.appendChild(sliderStageDiv);
   
   // var height = ((Blockly.FieldMarkov.INPUT_BOX_HEIGHT + Blockly.FieldMarkov.PAD) * (numSliders + 1) + Blockly.FieldMarkov.BOTTOM_MARGIN + Blockly.FieldMarkov.BUTTON_HEIGHT);
   // if (this.diceType_ === 'costume' || this.diceType_ === 'sound'){
@@ -611,16 +626,18 @@ Blockly.FieldMarkov.prototype.showEditor_ = function() {
   this.sliderTexts_ = [];
 
   // Div that will contain the uniform distribution and random distribution buttons.
-  var buttonDiv = Blockly.utils.createSvgElement('svg', {
-    'x': '0px',
-    'y': '0px'
-  }, this.sliderStage_);
-  this.createUniformRandomButtons(buttonDiv);
+  // var buttonDiv = Blockly.utils.createSvgElement('svg', {
+  //   'x': '0px',
+  //   'y': '0px'
+  // }, this.sliderStage_);
+  // this.createUniformRandomButtons(buttonDiv);
 
   this.whiteBackground_ = Blockly.utils.createSvgElement('rect', {
-    'x': '0px', 'y': Blockly.FieldMarkov.BUTTON_HEIGHT + (Blockly.FieldMarkov.WASTEBIN_MARGIN / 2) + 'px',
+    //'x': '0px', 'y': Blockly.FieldMarkov.BUTTON_HEIGHT + (Blockly.FieldMarkov.WASTEBIN_MARGIN / 2) + 'px',
+    'x': '0px', 'y': (Blockly.FieldMarkov.WASTEBIN_MARGIN / 2) + 'px',
     'width': sliderSize + 'px',
-    'height': (Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT - Blockly.FieldMarkov.BUTTON_HEIGHT) + 'px',
+    //'height': (Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT - Blockly.FieldMarkov.BUTTON_HEIGHT) + 'px',
+    'height': Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + 'px',
     'rx': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
     'ry': Blockly.FieldMarkov.SLIDER_NODE_RADIUS,
     'fill': '#FFFFFF'
