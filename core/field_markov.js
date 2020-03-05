@@ -825,6 +825,7 @@ Blockly.FieldMarkov.prototype.createUniformRandomButtons = function (button) {
     'ry': nodePad
   }, button);
 
+  this.uniformButton_.addEventListener('click', this.setToUniform_.bind(this), false);
   this.uniformButton_.addEventListener('mouseover', this.uniformMouseOver_.bind(this), false);
   this.uniformButton_.addEventListener('mouseout', this.uniformMouseOut_.bind(this), false);
 
@@ -838,6 +839,7 @@ Blockly.FieldMarkov.prototype.createUniformRandomButtons = function (button) {
       'rx': nodePad, 'ry': nodePad,
       'fill': fill
     }, button);
+    node.addEventListener('click', this.setToUniform_.bind(this), false);
     node.addEventListener('mouseover', this.uniformMouseOver_.bind(this), false);
     node.addEventListener('mouseout', this.uniformMouseOut_.bind(this), false);
 
@@ -851,6 +853,7 @@ Blockly.FieldMarkov.prototype.createUniformRandomButtons = function (button) {
     'height': 1,
     'fill': fill
   }, button);
+  node.addEventListener('click', this.setToUniform_.bind(this), false);
   node.addEventListener('mouseover', this.uniformMouseOver_.bind(this), false);
   node.addEventListener('mouseout', this.uniformMouseOut_.bind(this), false);
 
@@ -868,6 +871,7 @@ Blockly.FieldMarkov.prototype.createUniformRandomButtons = function (button) {
     'rx': nodePad, 'ry': nodePad
   }, button);
 
+  this.randomButton_.addEventListener('click', this.setToRandom_.bind(this), false);
   this.randomButton_.addEventListener('mouseover', this.randomMouseOver_.bind(this), false);
   this.randomButton_.addEventListener('mouseout', this.randomMouseOut_.bind(this), false);
 
@@ -880,6 +884,7 @@ Blockly.FieldMarkov.prototype.createUniformRandomButtons = function (button) {
       'rx': nodePad, 'ry': nodePad,
       'fill': fill
     }, button);
+    node.addEventListener('click', this.setToRandom_.bind(this), false);
     node.addEventListener('mouseover', this.randomMouseOver_.bind(this), false);
     node.addEventListener('mouseout', this.randomMouseOut_.bind(this), false);
   }
@@ -891,6 +896,7 @@ Blockly.FieldMarkov.prototype.createUniformRandomButtons = function (button) {
     'height': 1,
     'fill': fill
   }, button);
+  node.addEventListener('click', this.setToRandom_.bind(this), false);
   node.addEventListener('mouseover', this.randomMouseOver_.bind(this), false);
   node.addEventListener('mouseout', this.randomMouseOut_.bind(this), false);
 };
@@ -1067,11 +1073,11 @@ Blockly.FieldMarkov.prototype.onMouseDown = function (e) {
     return;
   }
 
-  if (newHeight > 110) {
-    // Checks if the random distribution or uniform distribution buttons were hit.
-    this.checkForButton_(e);
-    return;
-  }
+  // if (newHeight > 110) {
+  //   // Checks if the random distribution or uniform distribution buttons were hit.
+  //   this.checkForButton_(e);
+  //   return;
+  // }
   if (sliderHit > -1 && sliderHit < numSliders) {
     this.setSliderNode_(sliderHit, newHeight);
     this.sliderRects_[sliderHit].style.fill = '#4FA5CF';
@@ -1140,21 +1146,21 @@ Blockly.FieldMarkov.prototype.checkForSlider_ = function (e) {
   return xDiv;
 };
 
-Blockly.FieldMarkov.prototype.checkForButton_ = function (e) {
-  var bBox = this.sliderStage_.getBoundingClientRect();
-  var dx = e.clientX - bBox.left;
-  var dy = e.clientY - bBox.top;
-  var width = Blockly.FieldMarkov.BUTTON_WIDTH;
-  var height = Blockly.FieldMarkov.BUTTON_HEIGHT;
-  var pad = Blockly.FieldMarkov.BUTTON_PAD;
-  if (dy <= height) {
-    if (dx <= width) {
-      this.setToUniform_();
-    } else if (dx >= (width + pad) && dx <= (2 * width + pad)) {
-      this.setToRandom_();
-    }
-  }
-};
+// Blockly.FieldMarkov.prototype.checkForButton_ = function (e) {
+//   var bBox = this.sliderStage_.getBoundingClientRect();
+//   var dx = e.clientX - bBox.left;
+//   var dy = e.clientY - bBox.top;
+//   var width = Blockly.FieldMarkov.BUTTON_WIDTH;
+//   var height = Blockly.FieldMarkov.BUTTON_HEIGHT;
+//   var pad = Blockly.FieldMarkov.BUTTON_PAD;
+//   if (dy <= height) {
+//     if (dx <= width) {
+//       this.setToUniform_();
+//     } else if (dx >= (width + pad) && dx <= (2 * width + pad)) {
+//       this.setToRandom_();
+//     }
+//   }
+// };
 
 Blockly.FieldMarkov.prototype.setToUniform_ = function () {
   var currentValue = this.sliders_.length;
