@@ -42,7 +42,7 @@ goog.require('Blockly.DropDownDiv');
  * @extends {Blockly.Field}
  * @constructor
  */
-Blockly.FieldSlider = function(slider) {
+Blockly.FieldSlider = function (slider) {
   Blockly.FieldSlider.superClass_.constructor.call(this, slider);
   this.addArgType('slider');
   /**
@@ -204,7 +204,7 @@ goog.inherits(Blockly.FieldSlider, Blockly.Field);
  * @package
  * @nocollapse
  */
-Blockly.FieldSlider.fromJson = function(options) {
+Blockly.FieldSlider.fromJson = function (options) {
   return new Blockly.FieldSlider(options['slider']);
 };
 
@@ -271,7 +271,7 @@ Blockly.FieldSlider.MAX_SLIDER_HEIGHT = 100;
  * @type {number}
  * @const
  */
-Blockly.FieldSlider.SLIDER_STAGE_HEIGHT = 145; //140;
+Blockly.FieldSlider.SLIDER_STAGE_HEIGHT = 145 - 17; //140;
 
 
 /**
@@ -293,7 +293,7 @@ Blockly.FieldSlider.BUTTON_WIDTH = 24;
  * @type {number}
  * @const
  */
-Blockly.FieldSlider.BUTTON_HEIGHT = 17;
+Blockly.FieldSlider.BUTTON_HEIGHT = 19;
 
 /**
  * Padding between the buttons.
@@ -357,7 +357,7 @@ Blockly.FieldSlider.WASTEBIN_MARGIN = 5;
  * Called when the field is placed on a block.
  * @param {Block} block The owning block.
  */
-Blockly.FieldSlider.prototype.init = function() {
+Blockly.FieldSlider.prototype.init = function () {
   if (this.fieldGroup_) {
     // Slider menu has already been initialized once.
     return;
@@ -399,7 +399,7 @@ Blockly.FieldSlider.prototype.init = function() {
       'fill': '#FFFFFF'
     };
     this.sliderThumbNodes_.push(
-      Blockly.utils.createSvgElement('rect', attr, this.thumbnail_)
+      Blockly.utils.createSvgElement('rect', attr, i < 6 ? this.thumbnail_ : null)
     );
 
     this.thumbnail_.style.cursor = 'default';
@@ -416,7 +416,7 @@ Blockly.FieldSlider.prototype.init = function() {
     }, this.fieldGroup_);
     this.arrow_.setAttributeNS('http://www.w3.org/1999/xlink',
       'xlink:href', Blockly.mainWorkspace.options.pathToMedia +
-      'dropdown-arrow.svg');
+    'dropdown-arrow.svg');
     this.arrow_.style.cursor = 'default';
   }
 
@@ -433,7 +433,7 @@ Blockly.FieldSlider.prototype.init = function() {
  * reported to Blockly in string format.
  * @override
  */
-Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
+Blockly.FieldSlider.prototype.setValue = function (sliderValue) {
   if (!sliderValue) {
     return;
   }
@@ -491,7 +491,7 @@ Blockly.FieldSlider.prototype.setValue = function(sliderValue) {
  * Get the value from this slider menu.
  * @return {String} Current slider values.
  */
-Blockly.FieldSlider.prototype.getValue = function() {
+Blockly.FieldSlider.prototype.getValue = function () {
   // Report the value as a string because Blockly cannot handle arrays.
   // Also safety from rep exposure.
   switch (this.diceType_) {
@@ -510,7 +510,7 @@ Blockly.FieldSlider.prototype.getValue = function() {
  * Draw the sliders.
  * @private
  */
-Blockly.FieldSlider.prototype.showEditor_ = function() {
+Blockly.FieldSlider.prototype.showEditor_ = function () {
   // If there is an existing drop-down someone else owns, hide it immediately and clear it.
 
   Blockly.DropDownDiv.hideWithoutAnimation();
@@ -535,6 +535,29 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'width': Blockly.FieldSlider.INPUT_BOX_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN
   }, div);
 
+
+  var mainDiv = document.createElement('div');
+  mainDiv.style.display = 'inline-block';
+  div.appendChild(mainDiv);
+  var buttonsDiv = document.createElement('div');
+  buttonsDiv.style.height = Blockly.FieldMarkov.BUTTON_HEIGHT + 'px';
+  buttonsDiv.style.maxWidth = '230px';
+  buttonsDiv.style.overflow = 'hidden';
+  mainDiv.appendChild(buttonsDiv);
+  var buttonDiv = Blockly.utils.createSvgElement('svg', {
+    'x': '0px',
+    'y': '0px',
+    'width': '70px'
+  }, buttonsDiv);
+  this.createUniformRandomButtons(buttonDiv);
+
+  var sliderStageDiv = document.createElement('div');
+  sliderStageDiv.style.display = 'inline-block';
+  sliderStageDiv.style.overflow = 'auto';
+  sliderStageDiv.style.maxWidth = '230px';
+  sliderStageDiv.id = 'chanceExtension';
+  mainDiv.appendChild(sliderStageDiv);
+
   var sliderStageHeight;
   if (this.diceType_ === 'costume' || this.diceType_ === 'sound') {
     sliderStageHeight = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.BOTTOM_MARGIN + Blockly.FieldSlider.INPUT_BOX_WIDTH + Blockly.FieldSlider.WASTEBIN_MARGIN;
@@ -549,7 +572,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     'height': sliderStageHeight,
     'width': sliderSize + 'px',
     'cursor': 'ns-resize'
-  }, div);
+  }, sliderStageDiv);
 
   this.sliderStage_.addEventListener('mousemove', this.stageHoverMoveListener_.bind(this), false);
   this.sliderStage_.addEventListener('mouseleave', this.stageMouseOut_.bind(this), false);
@@ -559,23 +582,23 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
   this.sliderTexts_ = [];
 
   // Add the div that will contain the uniform distribution and random distribution buttons.
-  var buttonDiv = Blockly.utils.createSvgElement('svg', {
-    /* 'xmlns': 'http://www.w3.org/2000/svg',
-     'xmlns:html': 'http://www.w3.org/1999/xhtml',
-     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
-     'version': '1.1', */
-    'x': '0px',
-    'y': '0px'
-    // 'cursor': 'ns-resize'
-  }, this.sliderStage_);
-  this.createUniformRandomButtons(buttonDiv); // Draw the buttons.
+  // var buttonDiv = Blockly.utils.createSvgElement('svg', {
+  //   /* 'xmlns': 'http://www.w3.org/2000/svg',
+  //    'xmlns:html': 'http://www.w3.org/1999/xhtml',
+  //    'xmlns:xlink': 'http://www.w3.org/1999/xlink',
+  //    'version': '1.1', */
+  //   'x': '0px',
+  //   'y': '0px'
+  //   // 'cursor': 'ns-resize'
+  // }, this.sliderStage_);
+  // this.createUniformRandomButtons(buttonDiv); // Draw the buttons.
 
 
   this.whiteBackground_ = Blockly.utils.createSvgElement('rect', {
     'x': '0px',
-    'y': Blockly.FieldSlider.BUTTON_HEIGHT + (Blockly.FieldSlider.WASTEBIN_MARGIN / 2) + 'px',
+    'y': (Blockly.FieldSlider.WASTEBIN_MARGIN / 2) + 'px',
     'width': sliderSize + 'px',
-    'height': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.BUTTON_HEIGHT) + 'px',
+    'height': (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT) + 'px',
     'rx': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
     'ry': Blockly.FieldSlider.SLIDER_NODE_RADIUS,
     'fill': '#FFFFFF'
@@ -651,7 +674,7 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
     );
     wasteBin.addEventListener('click', this.removeSliderListener_.bind(this), false);
     if (this.diceType_ === 'costume' || this.diceType_ === 'sound') {
-      var text_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN + Blockly.FieldMarkov.INPUT_BOX_WIDTH + Blockly.FieldMarkov.WASTEBIN_MARGIN + 'px';
+      var text_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN + Blockly.FieldSlider.INPUT_BOX_WIDTH + Blockly.FieldSlider.WASTEBIN_MARGIN + 'px';
       wasteBin.setAttribute('visibility', 'hidden');
     } else {
       var text_y = Blockly.FieldSlider.SLIDER_STAGE_HEIGHT + Blockly.FieldSlider.WASTEBIN_MARGIN
@@ -799,14 +822,14 @@ Blockly.FieldSlider.prototype.showEditor_ = function() {
 
 };
 
-this.nodeCallback_ = function(e, num) {
+this.nodeCallback_ = function (e, num) {
   console.log(num);
 };
 
 /**
  * Create the "return to uniform" and "random distribution" buttons.
  */
-Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
+Blockly.FieldSlider.prototype.createUniformRandomButtons = function (button) {
   var paddingOfPattern = 2;
   var nodeWidth = (Blockly.FieldSlider.BUTTON_WIDTH - paddingOfPattern * 2) / 4;
   var nodePad = (Blockly.FieldSlider.BUTTON_WIDTH - paddingOfPattern * 2) / 16;
@@ -825,6 +848,7 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
     'ry': nodePad
   }, button);
 
+  this.uniformButton_.addEventListener('click', this.setToUniform_.bind(this), false);
   this.uniformButton_.addEventListener('mouseover', this.uniformMouseOver_.bind(this), false);
   this.uniformButton_.addEventListener('mouseout', this.uniformMouseOut_.bind(this), false);
 
@@ -841,6 +865,7 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
       'ry': nodePad,
       'fill': fill
     }, button);
+    node.addEventListener('click', this.setToUniform_.bind(this), false);
     node.addEventListener('mouseover', this.uniformMouseOver_.bind(this), false);
     node.addEventListener('mouseout', this.uniformMouseOut_.bind(this), false);
 
@@ -853,6 +878,7 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
     'height': 1,
     'fill': fill
   }, button);
+  node.addEventListener('click', this.setToUniform_.bind(this), false);
   node.addEventListener('mouseover', this.uniformMouseOver_.bind(this), false);
   node.addEventListener('mouseout', this.uniformMouseOut_.bind(this), false);
 
@@ -870,6 +896,7 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
     'ry': nodePad
   }, button);
 
+  this.randomButton_.addEventListener('click', this.setToRandom_.bind(this), false);
   this.randomButton_.addEventListener('mouseover', this.randomMouseOver_.bind(this), false);
   this.randomButton_.addEventListener('mouseout', this.randomMouseOut_.bind(this), false);
 
@@ -884,6 +911,7 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
       'ry': nodePad,
       'fill': fill
     }, button);
+    node.addEventListener('click', this.setToRandom_.bind(this), false);
     node.addEventListener('mouseover', this.randomMouseOver_.bind(this), false);
     node.addEventListener('mouseout', this.randomMouseOut_.bind(this), false);
   }
@@ -895,6 +923,7 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
     'height': 1,
     'fill': fill
   }, button);
+  node.addEventListener('click', this.setToRandom_.bind(this), false);
   node.addEventListener('mouseover', this.randomMouseOver_.bind(this), false);
   node.addEventListener('mouseout', this.randomMouseOut_.bind(this), false);
 }
@@ -923,7 +952,9 @@ Blockly.FieldSlider.prototype.createUniformRandomButtons = function(button) {
 /**
  * Event listener for the plus button in the dropdown menu.
  */
-Blockly.FieldSlider.prototype.handleIncreaseNumSlidersEvent = function() {
+Blockly.FieldSlider.prototype.handleIncreaseNumSlidersEvent = function () {
+
+
   var currentValue = this.sliders_.length;
   if (currentValue === Blockly.FieldSlider.MAX_SLIDER_NUMBER) { return; } // Number of sliders is already at the maximum so do nothing.
   var arrayValue = 100.0 / (currentValue + 1);
@@ -945,11 +976,15 @@ Blockly.FieldSlider.prototype.handleIncreaseNumSlidersEvent = function() {
   //else{
   this.setValue(newArray.toString() + '|' + newStrings.join('~') + '|' + this.diceType_);
   //}
+  var stage = document.getElementById('chanceExtension');
+  var k = (Blockly.FieldSlider.SLIDER_NODE_WIDTH + Blockly.FieldSlider.SLIDER_NODE_PAD) * (this.sliders_.length);
+  console.log(k)
+  stage.scrollLeft = k;
 
 }
 
-Blockly.FieldSlider.prototype.keyboardListenerFactory = function(index) {
-  return function() {
+Blockly.FieldSlider.prototype.keyboardListenerFactory = function (index) {
+  return function () {
     var newArray = this.sliderStrings_.slice();
     // Disallow the vertical bar and the tilde from being entered into the input box, because doing so would break the rep.
     if (this.textboxes_[index].value.match(/\||~/g)) {
@@ -971,7 +1006,7 @@ Blockly.FieldSlider.prototype.keyboardListenerFactory = function(index) {
  * Redraw the slider with the current value.
  * @private
  */
-Blockly.FieldSlider.prototype.updateSlider_ = function() {
+Blockly.FieldSlider.prototype.updateSlider_ = function () {
   var nodeSize = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
   var nodePad = Blockly.FieldSlider.SLIDER_NODE_PAD;
 
@@ -1017,7 +1052,7 @@ Blockly.FieldSlider.prototype.updateSlider_ = function() {
  * @param {!number} index The sindex of the slider node.
  * @param {!string} fill The fill colour in '#rrggbb' format.
  */
-Blockly.FieldSlider.prototype.fillSliderNode_ = function(height, index) {
+Blockly.FieldSlider.prototype.fillSliderNode_ = function (height, index) {
   var pad = Blockly.FieldSlider.SLIDER_NODE_PAD;
   var width = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
   var x = width * index + pad * (index + 0.5);
@@ -1045,7 +1080,7 @@ Blockly.FieldSlider.prototype.fillSliderNode_ = function(height, index) {
   }
 };
 
-Blockly.FieldSlider.prototype.setSliderNode_ = function(sliderIndex, newHeight) {
+Blockly.FieldSlider.prototype.setSliderNode_ = function (sliderIndex, newHeight) {
 
   let numSliders = this.sliders_.length;
   if (sliderIndex === numSliders) {
@@ -1093,7 +1128,7 @@ Blockly.FieldSlider.prototype.setSliderNode_ = function(sliderIndex, newHeight) 
  * Takes in a mouse event and gives the new height to setSliderNode as a number between 0 and 100.
  * @param {!Event} e Mouse event.
  */
-Blockly.FieldSlider.prototype.onMouseDown = function(e) {
+Blockly.FieldSlider.prototype.onMouseDown = function (e) {
   let numSliders = this.sliders_.length;
   var bBox = this.sliderStage_.getBoundingClientRect();
   var dy = e.clientY - bBox.top - (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.MAX_SLIDER_HEIGHT);
@@ -1112,11 +1147,11 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
     return;
   }
 
-  if (newHeight > 110) {
-    // Checks if the random distribution or uniform distribution buttons were hit.
-    this.checkForButton_(e);
-    return;
-  }
+  // if (newHeight > 110) {
+  //   // Checks if the random distribution or uniform distribution buttons were hit.
+  //   this.checkForButton_(e);
+  //   return;
+  // }
   if (sliderHit > -1 && sliderHit < numSliders) {
     this.setSliderNode_(sliderHit, newHeight);
     this.sliderRects_[sliderHit].style.fill = '#4FA5CF';
@@ -1130,7 +1165,7 @@ Blockly.FieldSlider.prototype.onMouseDown = function(e) {
  * Unbind mouse move event and clear the paint style.
  * @param {!Event} e Mouse move event.
  */
-Blockly.FieldSlider.prototype.onMouseUp = function() {
+Blockly.FieldSlider.prototype.onMouseUp = function () {
   Blockly.unbindEvent_(this.sliderMoveWrapper_);
   Blockly.unbindEvent_(this.sliderReleaseWrapper_);
   for (var i = 0; i < this.sliders_.length; i++) {
@@ -1146,7 +1181,7 @@ Blockly.FieldSlider.prototype.onMouseUp = function() {
  * Toggle slider nodes on and off by dragging mouse.
  * @param {!Event} e Mouse move event.
  */
-Blockly.FieldSlider.prototype.onMouseMove = function(e) {
+Blockly.FieldSlider.prototype.onMouseMove = function (e) {
   e.preventDefault();
   var bBox = this.sliderStage_.getBoundingClientRect();
   var dy = e.clientY - bBox.top - (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.MAX_SLIDER_HEIGHT);
@@ -1160,7 +1195,7 @@ Blockly.FieldSlider.prototype.onMouseMove = function(e) {
 /**
  * This listener attached to wastebin svgs and removes corresponding slider when called.
  */
-Blockly.FieldSlider.prototype.removeSliderListener_ = function(e) {
+Blockly.FieldSlider.prototype.removeSliderListener_ = function (e) {
   var sliderHit = parseInt(this.checkForSlider_(e));
   var currentValue = this.sliders_.length;
   if (currentValue === 2) { return; }
@@ -1191,7 +1226,7 @@ Blockly.FieldSlider.prototype.removeSliderListener_ = function(e) {
   }
 }
 
-Blockly.FieldSlider.prototype.playButtonListener_ = function(e) {
+Blockly.FieldSlider.prototype.playButtonListener_ = function (e) {
   var id = e.target.id;
   var sound = new Audio("data:audio/wav;base64," + this.soundData_[id]);
   sound.play();
@@ -1202,7 +1237,7 @@ Blockly.FieldSlider.prototype.playButtonListener_ = function(e) {
  * @param {!Event} e Mouse move event.
  * @return {number} The matching slider node or -1 for none.
  */
-Blockly.FieldSlider.prototype.checkForSlider_ = function(e) {
+Blockly.FieldSlider.prototype.checkForSlider_ = function (e) {
   var bBox = this.sliderStage_.getBoundingClientRect();
   var nodeSize = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
   var nodePad = Blockly.FieldSlider.SLIDER_NODE_PAD;
@@ -1213,23 +1248,23 @@ Blockly.FieldSlider.prototype.checkForSlider_ = function(e) {
   return xDiv;
 };
 
-Blockly.FieldSlider.prototype.checkForButton_ = function(e) {
-  var bBox = this.sliderStage_.getBoundingClientRect();
-  var dx = e.clientX - bBox.left;
-  var dy = e.clientY - bBox.top;
-  var width = Blockly.FieldSlider.BUTTON_WIDTH;
-  var height = Blockly.FieldSlider.BUTTON_HEIGHT;
-  var pad = Blockly.FieldSlider.BUTTON_PAD;
-  if (dy <= height) {
-    if (dx <= width) {
-      this.setToUniform_();
-    } else if (dx >= (width + pad) && dx <= (2 * width + pad)) {
-      this.setToRandom_();
-    }
-  }
-}
+// Blockly.FieldSlider.prototype.checkForButton_ = function(e) {
+//   var bBox = this.sliderStage_.getBoundingClientRect();
+//   var dx = e.clientX - bBox.left;
+//   var dy = e.clientY - bBox.top;
+//   var width = Blockly.FieldSlider.BUTTON_WIDTH;
+//   var height = Blockly.FieldSlider.BUTTON_HEIGHT;
+//   var pad = Blockly.FieldSlider.BUTTON_PAD;
+//   if (dy <= height) {
+//     if (dx <= width) {
+//       this.setToUniform_();
+//     } else if (dx >= (width + pad) && dx <= (2 * width + pad)) {
+//       this.setToRandom_();
+//     }
+//   }
+// }
 
-Blockly.FieldSlider.prototype.setToUniform_ = function() {
+Blockly.FieldSlider.prototype.setToUniform_ = function () {
   var currentValue = this.sliders_.length;
   var arrayValue = 100.0 / currentValue;
   var newArray = [];
@@ -1248,7 +1283,7 @@ Blockly.FieldSlider.prototype.setToUniform_ = function() {
   }
 }
 
-Blockly.FieldSlider.prototype.setToRandom_ = function() {
+Blockly.FieldSlider.prototype.setToRandom_ = function () {
   var sumOfArray = 0.0;
   var numSliders = this.sliders_.length;
   var newValue;
@@ -1275,7 +1310,7 @@ Blockly.FieldSlider.prototype.setToRandom_ = function() {
 
 
 
-Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
+Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function (e) {
   var sliderHit = this.checkForSlider_(e);
   var bBox = this.sliderStage_.getBoundingClientRect();
   var dy = e.clientY - bBox.top;
@@ -1312,31 +1347,31 @@ Blockly.FieldSlider.prototype.stageHoverMoveListener_ = function(e) {
 
 }
 
-Blockly.FieldSlider.prototype.stageMouseOut_ = function() {
+Blockly.FieldSlider.prototype.stageMouseOut_ = function () {
   if (this.visibleSliderText_ !== null) {
     this.sliderTexts_[this.visibleSliderText_].setAttribute('visibility', 'hidden');
   }
   this.visibleSliderText_ = null;
 }
 
-Blockly.FieldSlider.prototype.buttonMouseOver_ = function() {
+Blockly.FieldSlider.prototype.buttonMouseOver_ = function () {
   this.addSliderButton_.setAttribute('fill', '#FFFFFF');
 }
-Blockly.FieldSlider.prototype.buttonMouseOut_ = function() {
+Blockly.FieldSlider.prototype.buttonMouseOut_ = function () {
   this.addSliderButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
 }
 
-Blockly.FieldSlider.prototype.randomMouseOver_ = function() {
+Blockly.FieldSlider.prototype.randomMouseOver_ = function () {
   this.randomButton_.setAttribute('fill', '#FFFFFF');
 }
-Blockly.FieldSlider.prototype.randomMouseOut_ = function() {
+Blockly.FieldSlider.prototype.randomMouseOut_ = function () {
   this.randomButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
 }
 
-Blockly.FieldSlider.prototype.uniformMouseOver_ = function() {
+Blockly.FieldSlider.prototype.uniformMouseOver_ = function () {
   this.uniformButton_.setAttribute('fill', '#FFFFFF');
 }
-Blockly.FieldSlider.prototype.uniformMouseOut_ = function() {
+Blockly.FieldSlider.prototype.uniformMouseOut_ = function () {
   this.uniformButton_.setAttribute('fill', this.sourceBlock_.getColourTertiary());
 }
 
@@ -1346,9 +1381,9 @@ Blockly.FieldSlider.prototype.uniformMouseOut_ = function() {
  * @return {!Function} Closure to call on destruction of the WidgetDiv.
  * @private
  */
-Blockly.FieldSlider.prototype.dispose_ = function() {
+Blockly.FieldSlider.prototype.dispose_ = function () {
   var thisField = this;
-  return function() {
+  return function () {
     Blockly.FieldSlider.superClass_.dispose_.call(thisField)();
     thisField.sliderStage_ = null;
     if (thisField.mouseDownWrapper_) {
