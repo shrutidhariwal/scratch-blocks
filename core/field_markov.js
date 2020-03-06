@@ -692,11 +692,14 @@ Blockly.FieldMarkov.prototype.showEditor_ = function () {
           'x': x + (Blockly.FieldMarkov.SLIDER_NODE_WIDTH - Blockly.FieldMarkov.INPUT_BOX_WIDTH) / 2 + 3,
           'y': Blockly.FieldMarkov.SLIDER_STAGE_HEIGHT + Blockly.FieldMarkov.WASTEBIN_MARGIN * 1 + 3
         }, this.sliderStage_);
-      img.setAttributeNS(
-        'http://www.w3.org/1999/xlink',
-        'xlink:href',
-        "data:image/svg+xml;base64," + this.costumeData_[i]
-      );
+
+      if (i < this.sliders_.length) {
+        let imgURL = "data:" + this.costumeData_[i].split('*')[0] + ";base64," + this.costumeData_[i].split('*')[1];
+        img.setAttributeNS(
+          'http://www.w3.org/1999/xlink',
+          'xlink:href',
+          imgURL);
+      }
     }
 
     if (this.diceType_ === 'sound') {
