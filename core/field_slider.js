@@ -433,14 +433,16 @@ Blockly.FieldSlider.prototype.init = function () {
  * reported to Blockly in string format.
  * @override
  */
+
 Blockly.FieldSlider.prototype.setValue = function (sliderValue) {
   if (!sliderValue) {
     return;
-  }
+  } 
 
   var newArray = sliderValue.split('|');
   var sliders = newArray[0];
-  var strings = newArray[1];
+  var strings = newArray[1].trim();
+  
   var diceType = newArray[2];
   if (diceType == 'costume') {
     var costumeData = newArray[3];
@@ -474,6 +476,7 @@ Blockly.FieldSlider.prototype.setValue = function (sliderValue) {
 
   this.sliders_ = JSON.parse("[" + sliders + "]");
   this.sliderStrings_ = strings.split('~');
+  console.log(this.sliderStrings_);
   this.diceType_ = diceType;
   switch (diceType) {
     case 'costume':
@@ -1129,34 +1132,29 @@ Blockly.FieldSlider.prototype.setSliderNode_ = function (sliderIndex, newHeight)
  * @param {!Event} e Mouse event.
  */
 Blockly.FieldSlider.prototype.onMouseDown = function (e) {
-  let numSliders = this.sliders_.length;
-  var bBox = this.sliderStage_.getBoundingClientRect();
-  var dy = e.clientY - bBox.top - (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.MAX_SLIDER_HEIGHT);
+  if (this.sliders_.length > 1) {
+    let numSliders = this.sliders_.length;
+    var bBox = this.sliderStage_.getBoundingClientRect();
+    var dy = e.clientY - bBox.top - (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.MAX_SLIDER_HEIGHT);
 
-  this.sliderMoveWrapper_ =
-    Blockly.bindEvent_(document.body, 'mousemove', this, this.onMouseMove);
-  this.sliderReleaseWrapper_ =
-    Blockly.bindEvent_(document.body, 'mouseup', this, this.onMouseUp);
+    this.sliderMoveWrapper_ =
+      Blockly.bindEvent_(document.body, 'mousemove', this, this.onMouseMove);
+    this.sliderReleaseWrapper_ =
+      Blockly.bindEvent_(document.body, 'mouseup', this, this.onMouseUp);
 
+    var sliderHit = parseInt(this.checkForSlider_(e));
+    this.currentSlider_ = sliderHit;
+    var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
 
-  var sliderHit = parseInt(this.checkForSlider_(e));
-  this.currentSlider_ = sliderHit;
-  var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
-
-  if (newHeight < -5) {
-    return;
-  }
-
-  // if (newHeight > 110) {
-  //   // Checks if the random distribution or uniform distribution buttons were hit.
-  //   this.checkForButton_(e);
-  //   return;
-  // }
-  if (sliderHit > -1 && sliderHit < numSliders) {
-    this.setSliderNode_(sliderHit, newHeight);
-    this.sliderRects_[sliderHit].style.fill = '#4FA5CF';
-  } else {
-    this.paintStyle_ = null;
+    if (newHeight < -5) {
+      return;
+    }
+    if (sliderHit > -1 && sliderHit < numSliders) {
+      this.setSliderNode_(sliderHit, newHeight);
+      this.sliderRects_[sliderHit].style.fill = '#4FA5CF';
+    } else {
+      this.paintStyle_ = null;
+    }
   }
 };
 
@@ -1182,13 +1180,17 @@ Blockly.FieldSlider.prototype.onMouseUp = function () {
  * @param {!Event} e Mouse move event.
  */
 Blockly.FieldSlider.prototype.onMouseMove = function (e) {
-  e.preventDefault();
-  var bBox = this.sliderStage_.getBoundingClientRect();
-  var dy = e.clientY - bBox.top - (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.MAX_SLIDER_HEIGHT);
-  var sliderHit = this.currentSlider_;
-  var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
-  if (newHeight < -5 || newHeight > 110) { return; }
-  this.setSliderNode_(sliderHit, newHeight);
+  if (this.sliders_.length > 1) {
+    e.preventDefault();
+    var bBox = this.sliderStage_.getBoundingClientRect();
+    var dy = e.clientY - bBox.top - (Blockly.FieldSlider.SLIDER_STAGE_HEIGHT - Blockly.FieldSlider.MAX_SLIDER_HEIGHT);
+    var sliderHit = this.currentSlider_;
+    var newHeight = 100 * (Blockly.FieldSlider.MAX_SLIDER_HEIGHT - dy) / Blockly.FieldSlider.MAX_SLIDER_HEIGHT;
+    if (newHeight < -5 || newHeight > 110) {
+      return;
+    }
+    this.setSliderNode_(sliderHit, newHeight);
+  }
 };
 
 
@@ -1238,14 +1240,20 @@ Blockly.FieldSlider.prototype.playButtonListener_ = function (e) {
  * @return {number} The matching slider node or -1 for none.
  */
 Blockly.FieldSlider.prototype.checkForSlider_ = function (e) {
-  var bBox = this.sliderStage_.getBoundingClientRect();
-  var nodeSize = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
-  var nodePad = Blockly.FieldSlider.SLIDER_NODE_PAD;
-  var dx = e.clientX - bBox.left;
-  var xDiv = Math.trunc((dx) / (nodeSize + nodePad));
-  if (xDiv >= this.sliders_.length) { xDiv = this.sliders_.length - 1; }
-  if (xDiv < 0) { xDiv = 0; }
-  return xDiv;
+  if (this.sliders_.length > 1) {
+    var bBox = this.sliderStage_.getBoundingClientRect();
+    var nodeSize = Blockly.FieldSlider.SLIDER_NODE_WIDTH;
+    var nodePad = Blockly.FieldSlider.SLIDER_NODE_PAD;
+    var dx = e.clientX - bBox.left;
+    var xDiv = Math.trunc((dx) / (nodeSize + nodePad));
+    if (xDiv >= this.sliders_.length) {
+      xDiv = this.sliders_.length - 1;
+    }
+    if (xDiv < 0) {
+      xDiv = 0;
+    }
+    return xDiv;
+  }
 };
 
 // Blockly.FieldSlider.prototype.checkForButton_ = function(e) {
